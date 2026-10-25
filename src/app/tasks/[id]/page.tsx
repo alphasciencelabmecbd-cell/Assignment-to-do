@@ -298,13 +298,13 @@ function TaskDetailContent() {
     <div className="min-h-screen bg-[#060913] text-slate-100 flex flex-col selection:bg-cyan-500 selection:text-black">
       
       {/* Top Breadcrumb Navigation Bar */}
-      <header className="sticky top-0 z-40 w-full border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-xl px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <header className="sticky top-0 z-40 w-full border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-xl px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 flex items-center justify-between">
+        <div className="flex items-center gap-2 sm:gap-3">
           <Link
             href="/"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-300 hover:text-white hover:border-slate-700 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-300 hover:text-white hover:border-slate-700 transition-all cursor-pointer min-h-9.5 touch-manipulation"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
+            <ArrowLeft className="w-3.5 h-3.5 shrink-0" />
             <span>Arena Dashboard</span>
           </Link>
           <span className="text-slate-600 hidden sm:inline">&bull;</span>
@@ -315,18 +315,18 @@ function TaskDetailContent() {
 
         <div>
           {userProfile ? (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
-              <span className="font-semibold text-white truncate max-w-30 sm:max-w-none">
+            <div className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
+              <span className="font-semibold text-white truncate max-w-28 sm:max-w-none">
                 {userProfile.full_name || userProfile.email}
               </span>
             </div>
           ) : (
             <button
               onClick={() => setAuthModalOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-bold shadow-md transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-bold shadow-md transition-all cursor-pointer min-h-9.5 touch-manipulation"
             >
-              <ShieldCheck className="w-3.5 h-3.5" />
+              <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
               <span>Login / Register</span>
             </button>
           )}
@@ -334,22 +334,22 @@ function TaskDetailContent() {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
+      <main className="flex-1 max-w-5xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6 sm:space-y-8">
         {loading ? (
           <div className="space-y-6 animate-pulse">
-            <div className="h-48 rounded-3xl bg-slate-900/60 border border-slate-800 p-6 flex flex-col justify-between">
+            <div className="h-48 rounded-2xl sm:rounded-3xl bg-slate-900/60 border border-slate-800 p-5 sm:p-6 flex flex-col justify-between">
               <div className="h-6 w-48 bg-slate-800 rounded-lg" />
               <div className="h-10 w-3/4 bg-slate-800/80 rounded-xl" />
               <div className="h-4 w-1/2 bg-slate-800/50 rounded-lg" />
             </div>
-            <div className="h-44 rounded-3xl bg-slate-900/40 border border-slate-800/80 p-6 space-y-3">
+            <div className="h-44 rounded-2xl sm:rounded-3xl bg-slate-900/40 border border-slate-800/80 p-5 sm:p-6 space-y-3">
               <div className="h-5 w-40 bg-slate-800 rounded-lg" />
               <div className="h-4 w-full bg-slate-800/50 rounded" />
               <div className="h-4 w-5/6 bg-slate-800/50 rounded" />
             </div>
           </div>
         ) : !task ? (
-          <div className="p-12 rounded-3xl bg-slate-900/60 border border-slate-800 text-center flex flex-col items-center">
+          <div className="p-8 sm:p-12 rounded-2xl sm:rounded-3xl bg-slate-900/60 border border-slate-800 text-center flex flex-col items-center">
             <AlertCircle className="w-12 h-12 text-amber-400 mb-3" />
             <h1 className="text-xl font-bold text-white">Task #{taskId} Not Found</h1>
             <p className="text-xs text-slate-400 mt-1 max-w-sm">
@@ -357,7 +357,7 @@ function TaskDetailContent() {
             </p>
             <Link
               href="/"
-              className="mt-5 px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition-all shadow-lg"
+              className="mt-5 px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition-all shadow-lg min-h-10.5 flex items-center justify-center"
             >
               Return to Arena Dashboard
             </Link>
@@ -365,49 +365,49 @@ function TaskDetailContent() {
         ) : (
           <>
             {/* TASK HERO BANNER & UNIFIED MASTER DEADLINE */}
-            <div className="relative rounded-3xl p-6 sm:p-8 lg:p-10 glass-panel border border-slate-800/90 overflow-hidden shadow-2xl">
-              <div className="absolute top-0 right-0 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute bottom-0 left-1/4 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative rounded-2xl sm:rounded-3xl p-5 sm:p-8 lg:p-10 glass-panel border border-slate-800/90 overflow-hidden shadow-2xl">
+              <div className="absolute top-0 right-0 w-72 sm:w-80 h-72 sm:h-80 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute bottom-0 left-1/4 w-64 sm:w-72 h-64 sm:h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
-              <div className="relative z-10 space-y-4">
+              <div className="relative z-10 space-y-3 sm:space-y-4">
                 {/* Top Badges */}
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="px-3 py-1 rounded-full text-xs font-black bg-blue-500/20 text-cyan-300 border border-blue-500/30 font-mono">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                  <span className="px-2.5 sm:px-3 py-1 rounded-full text-xs font-black bg-blue-500/20 text-cyan-300 border border-blue-500/30 font-mono">
                     CHALLENGE #{task.id < 10 ? `0${task.id}` : task.id}
                   </span>
-                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700">
+                  <span className="px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700">
                     {task.category}
                   </span>
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono">
+                  <span className="px-2.5 sm:px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono">
                     {task.points} PTS MAX
                   </span>
 
                   {isCompleted ? (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                       <span>COMPLETED</span>
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 font-mono">
-                      <Clock className="w-3.5 h-3.5 text-slate-500" />
+                    <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 font-mono">
+                      <Clock className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                       <span>PENDING SUBMISSION</span>
                     </span>
                   )}
                 </div>
 
                 {/* Task Title */}
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
+                <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight text-balance-fluid">
                   {task.title}
                 </h1>
 
                 {/* Unified Master Competition Deadline & Formats */}
-                <div className="pt-2 flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-slate-400 border-t border-slate-800/80">
+                <div className="pt-2 flex flex-wrap items-center gap-3 sm:gap-6 text-xs text-slate-400 border-t border-slate-800/80">
                   <div className="flex items-center gap-1.5 text-cyan-400">
-                    <Calendar className="w-3.5 h-3.5" />
+                    <Calendar className="w-3.5 h-3.5 shrink-0" />
                     <span>Master Competition Deadline: <strong className="text-white font-mono">{new Date(masterDeadline).toLocaleString()}</strong></span>
                   </div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[11px] text-slate-500 font-semibold uppercase">Admin-Accepted Formats:</span>
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                    <span className="text-[11px] text-slate-500 font-semibold uppercase">Accepted Formats:</span>
                     {allowed.map((fmt) => (
                       <span key={fmt} className="px-2 py-0.5 rounded-md bg-slate-900 border border-slate-800 text-[11px] text-cyan-300 uppercase font-mono">
                         {fmt === 'github' ? 'GitHub' : fmt === 'video' ? 'YouTube' : fmt === 'document' ? 'Doc/Drive' : fmt === 'image' ? 'Image' : fmt}
@@ -420,9 +420,9 @@ function TaskDetailContent() {
             </div>
 
             {/* PROBLEM STATEMENT & DETAILED DESCRIPTION */}
-            <div className="p-6 sm:p-8 rounded-3xl glass-panel border border-slate-800/90 space-y-4">
+            <div className="p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl glass-panel border border-slate-800/90 space-y-4">
               <div className="flex items-center gap-2">
-                <span className="p-1.5 rounded-lg bg-blue-500/10 text-cyan-400 border border-blue-500/20">
+                <span className="p-1.5 rounded-lg bg-blue-500/10 text-cyan-400 border border-blue-500/20 shrink-0">
                   <FileCode className="w-4 h-4" />
                 </span>
                 <h2 className="text-base sm:text-lg font-bold text-white tracking-wide">
@@ -645,9 +645,9 @@ function TaskDetailContent() {
                     
                     {/* 1. GITHUB MONOREPO INPUT (Rendered only if enabled) */}
                     {isGithubAllowed && (
-                      <div className="p-4 rounded-2xl bg-slate-950/90 border border-purple-500/40 focus-within:border-purple-400 transition-all space-y-3">
-                        <label className="flex items-center gap-2 text-xs font-bold text-white">
-                          <Github className="w-4 h-4 text-purple-400" />
+                      <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-950/90 border border-purple-500/40 focus-within:border-purple-400 transition-all space-y-3">
+                        <label className="flex items-center gap-2 text-xs font-bold text-white flex-wrap">
+                          <Github className="w-4 h-4 text-purple-400 shrink-0" />
                           <span>GitHub Repository URL</span>
                           <span className="text-[10px] text-purple-300 font-normal font-mono">(Public repo link)</span>
                         </label>
@@ -656,7 +656,7 @@ function TaskDetailContent() {
                           value={githubUrl}
                           onChange={(e) => setGithubUrl(e.target.value)}
                           placeholder="https://github.com/your-username/asl-engineering-project"
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono text-xs placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-all"
+                          className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono text-sm sm:text-xs placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-all min-h-11"
                         />
                         <div className="w-full sm:w-1/2">
                           <label className="block text-[11px] text-slate-400 mb-1">Target Branch / Release Tag</label>
@@ -665,7 +665,7 @@ function TaskDetailContent() {
                             value={githubBranch}
                             onChange={(e) => setGithubBranch(e.target.value)}
                             placeholder="main"
-                            className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-white font-mono text-xs focus:outline-none focus:border-cyan-400"
+                            className="w-full px-3 py-2 sm:py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-white font-mono text-sm sm:text-xs focus:outline-none focus:border-cyan-400 min-h-10"
                           />
                         </div>
                       </div>
@@ -673,9 +673,9 @@ function TaskDetailContent() {
 
                     {/* 2. YOUTUBE VIDEO LINK (Rendered only if enabled) */}
                     {isVideoAllowed && (
-                      <div className="p-4 rounded-2xl bg-slate-950/90 border border-blue-500/40 focus-within:border-cyan-400 transition-all space-y-2">
-                        <label className="flex items-center gap-2 text-xs font-bold text-white">
-                          <Video className="w-4 h-4 text-cyan-400" />
+                      <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-950/90 border border-blue-500/40 focus-within:border-cyan-400 transition-all space-y-2">
+                        <label className="flex items-center gap-2 text-xs font-bold text-white flex-wrap">
+                          <Video className="w-4 h-4 text-cyan-400 shrink-0" />
                           <span>YouTube Video Link</span>
                           <span className="text-[10px] text-cyan-400 font-normal font-mono">(Video demonstration)</span>
                         </label>
@@ -684,16 +684,16 @@ function TaskDetailContent() {
                           value={videoUrl}
                           onChange={(e) => setVideoUrl(e.target.value)}
                           placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                          className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm sm:text-xs placeholder-slate-500 focus:outline-none focus:border-cyan-400 min-h-11"
                         />
                       </div>
                     )}
 
                     {/* 3. GOOGLE DRIVE DOCUMENT LINK (Rendered only if enabled) */}
                     {isDocumentAllowed && (
-                      <div className="p-4 rounded-2xl bg-slate-950/90 border border-amber-500/40 focus-within:border-amber-400 transition-all space-y-2">
-                        <label className="flex items-center gap-2 text-xs font-bold text-white">
-                          <FileText className="w-4 h-4 text-amber-400" />
+                      <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-950/90 border border-amber-500/40 focus-within:border-amber-400 transition-all space-y-2">
+                        <label className="flex items-center gap-2 text-xs font-bold text-white flex-wrap">
+                          <FileText className="w-4 h-4 text-amber-400 shrink-0" />
                           <span>Google Drive Document Link</span>
                           <span className="text-[10px] text-amber-300 font-normal font-mono">(Google Docs, Slides, or PDF)</span>
                         </label>
@@ -702,21 +702,21 @@ function TaskDetailContent() {
                           value={documentUrl}
                           onChange={(e) => setDocumentUrl(e.target.value)}
                           placeholder="https://docs.google.com/presentation/d/... or Google Drive URL"
-                          className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                          className="w-full px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm sm:text-xs placeholder-slate-500 focus:outline-none focus:border-cyan-400 min-h-11"
                         />
                       </div>
                     )}
 
                     {/* 4. DIRECT IMAGE UPLOADS (Rendered only if enabled) */}
                     {isImageAllowed && (
-                      <div className="p-4 rounded-2xl bg-slate-950/90 border border-emerald-500/40 focus-within:border-emerald-400 transition-all space-y-3">
-                        <label className="flex items-center gap-2 text-xs font-bold text-white">
-                          <ImageIcon className="w-4 h-4 text-emerald-400" />
+                      <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-950/90 border border-emerald-500/40 focus-within:border-emerald-400 transition-all space-y-3">
+                        <label className="flex items-center gap-2 text-xs font-bold text-white flex-wrap">
+                          <ImageIcon className="w-4 h-4 text-emerald-400 shrink-0" />
                           <span>Direct Image Upload</span>
                           <span className="text-[10px] text-emerald-300 font-normal font-mono">(CAD renders, schematics, or photos)</span>
                         </label>
 
-                        <div className="relative border-2 border-dashed border-slate-700 hover:border-emerald-400/50 rounded-xl p-4 text-center transition-all bg-slate-900/40">
+                        <div className="relative border-2 border-dashed border-slate-700 hover:border-emerald-400/50 rounded-xl p-4 sm:p-6 text-center transition-all bg-slate-900/40 min-h-25 flex flex-col items-center justify-center">
                           <input
                             type="file"
                             accept="image/*"
@@ -724,7 +724,7 @@ function TaskDetailContent() {
                             disabled={uploadingImage}
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
                           />
-                          <UploadCloud className="w-6 h-6 text-slate-400 mx-auto mb-1" />
+                          <UploadCloud className="w-6 h-6 text-slate-400 mx-auto mb-1 shrink-0" />
                           <span className="text-xs font-semibold text-slate-200 block">
                             {uploadingImage ? 'Uploading image to storage...' : 'Click or drop image deliverable here'}
                           </span>
@@ -732,12 +732,12 @@ function TaskDetailContent() {
                         </div>
 
                         {imageUrl && (
-                          <div className="flex items-center justify-between p-2 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+                          <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs">
                             <span className="text-emerald-400 truncate max-w-md font-mono">{imageUrl}</span>
                             <button
                               type="button"
                               onClick={() => setImageUrl('')}
-                              className="text-red-400 hover:text-red-300 text-xs font-bold px-2 py-1"
+                              className="text-red-400 hover:text-red-300 text-xs font-bold px-2 py-1 cursor-pointer min-h-8.5"
                             >
                               Remove
                             </button>
@@ -756,7 +756,7 @@ function TaskDetailContent() {
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                         placeholder="Briefly describe your solution, architecture highlights, or instructions for the jury..."
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-400"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm sm:text-xs focus:outline-none focus:border-cyan-400"
                       />
                     </div>
                   </div>
@@ -770,9 +770,9 @@ function TaskDetailContent() {
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-linear-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-extrabold shadow-xl shadow-cyan-600/30 transition-all cursor-pointer disabled:opacity-50"
+                      className="flex items-center justify-center gap-2 px-6 py-3.5 sm:py-3 rounded-2xl bg-linear-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs sm:text-sm font-extrabold shadow-xl shadow-cyan-600/30 transition-all cursor-pointer disabled:opacity-50 min-h-12 touch-manipulation"
                     >
-                      <Send className="w-3.5 h-3.5" />
+                      <Send className="w-4 h-4 shrink-0" />
                       <span>{submitting ? 'Submitting...' : 'Submit Deliverables & Validate'}</span>
                     </button>
                   </div>

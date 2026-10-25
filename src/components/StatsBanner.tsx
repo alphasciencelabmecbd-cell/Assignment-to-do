@@ -26,11 +26,11 @@ export default function StatsBanner({
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
       
       {/* Progress & Completion Card */}
-      <div className="sm:col-span-2 p-5 sm:p-6 rounded-3xl glass-panel relative overflow-hidden flex flex-col justify-between">
+      <div className="sm:col-span-2 p-4 sm:p-6 rounded-2xl sm:rounded-3xl glass-panel relative overflow-hidden flex flex-col justify-between">
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
               Submission Progress
             </span>
             <span className="text-xs sm:text-sm font-extrabold text-white font-mono">
@@ -39,7 +39,7 @@ export default function StatsBanner({
           </div>
 
           <div className="flex items-baseline gap-2 mb-3">
-            <span className="text-3xl sm:text-4xl font-black tracking-tight text-white font-mono">
+            <span className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white font-mono">
               {percentage}%
             </span>
             <span className="text-xs text-slate-400">
@@ -56,9 +56,9 @@ export default function StatsBanner({
           </div>
         </div>
 
-        <div className="relative z-10 mt-4 flex items-center justify-between text-[11px] text-slate-400">
+        <div className="relative z-10 mt-4 flex items-center justify-between text-[11px] text-slate-400 flex-wrap gap-1">
           <span>{Math.max(0, totalTasks - completedCount)} tasks remaining</span>
-          <span className="text-cyan-400 font-medium hidden sm:inline">Keep going for Grand Finale qualification</span>
+          <span className="text-cyan-400 font-medium hidden xs:inline sm:inline">Keep going for Grand Finale qualification</span>
         </div>
 
         {/* Ambient background glow */}
@@ -66,11 +66,11 @@ export default function StatsBanner({
       </div>
 
       {/* Points Card */}
-      <div className="p-5 sm:p-6 rounded-3xl glass-panel relative overflow-hidden flex flex-col justify-between">
+      <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl glass-panel relative overflow-hidden flex flex-col justify-between">
         <div>
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
-              <Trophy className="w-3.5 h-3.5 text-amber-400" />
+              <Trophy className="w-3.5 h-3.5 text-amber-400 shrink-0" />
               Total Points
             </span>
           </div>
@@ -92,11 +92,11 @@ export default function StatsBanner({
       </div>
 
       {/* Backend & Cloud Sync Card */}
-      <div className="p-5 sm:p-6 rounded-3xl glass-panel relative overflow-hidden flex flex-col justify-between">
+      <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl glass-panel relative overflow-hidden flex flex-col justify-between">
         <div>
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-              <Database className="w-3.5 h-3.5 text-emerald-400" />
+              <Database className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
               Live Platform
             </span>
             <span className="flex h-2 w-2 relative">

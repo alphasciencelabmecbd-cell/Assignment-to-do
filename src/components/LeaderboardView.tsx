@@ -126,18 +126,18 @@ export default function LeaderboardView({ totalTasksCount = 0 }: LeaderboardView
     <div className="space-y-4 sm:space-y-6 animate-fade-in">
       
       {/* Top Banner & Live Stats Summary */}
-      <div className="p-5 sm:p-8 rounded-3xl glass-panel relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border border-slate-800">
+      <div className="p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl glass-panel relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-5 sm:gap-6 border border-slate-800">
         <div>
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1.5">
-              <Trophy className="w-3.5 h-3.5 text-amber-400" />
+              <Trophy className="w-3.5 h-3.5 text-amber-400 shrink-0" />
               Live Database Standings
             </span>
             <span className="text-xs text-slate-400 font-mono">
               Real-Time Points Engine
             </span>
           </div>
-          <h2 className="text-xl sm:text-3xl font-black text-white tracking-tight">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
             Individual Engineering Leaderboard
           </h2>
           <p className="text-xs text-slate-400 mt-1 max-w-xl leading-relaxed">
@@ -146,25 +146,25 @@ export default function LeaderboardView({ totalTasksCount = 0 }: LeaderboardView
         </div>
 
         {/* Podium Highlight or Live Summary */}
-        <div className="flex items-center gap-2 p-2 rounded-2xl bg-slate-950/80 border border-slate-800 self-stretch sm:self-auto justify-around">
-          <div className="text-center p-2.5 sm:p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 flex-1 sm:flex-initial min-w-24">
-            <Medal className="w-5 sm:w-6 h-5 sm:h-6 text-amber-400 mx-auto mb-1" />
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5 p-1.5 sm:p-2 rounded-2xl bg-slate-950/80 border border-slate-800 w-full md:w-auto shrink-0">
+          <div className="text-center p-2 sm:p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 min-w-0">
+            <Medal className="w-4 sm:w-5 h-4 sm:h-5 text-amber-400 mx-auto mb-1 shrink-0" />
             <span className="text-[10px] font-bold text-amber-300 block">Rank #1</span>
-            <span className="text-xs font-black text-white font-mono">
+            <span className="text-xs font-black text-white font-mono truncate block">
               {filtered[0] ? `${filtered[0].total_score} PTS` : '---'}
             </span>
           </div>
-          <div className="text-center p-2.5 sm:p-3 rounded-xl bg-slate-800/60 border border-slate-700 flex-1 sm:flex-initial min-w-24">
-            <Medal className="w-5 sm:w-6 h-5 sm:h-6 text-slate-300 mx-auto mb-1" />
+          <div className="text-center p-2 sm:p-3 rounded-xl bg-slate-800/60 border border-slate-700 min-w-0">
+            <Medal className="w-4 sm:w-5 h-4 sm:h-5 text-slate-300 mx-auto mb-1 shrink-0" />
             <span className="text-[10px] font-bold text-slate-300 block">Rank #2</span>
-            <span className="text-xs font-black text-white font-mono">
+            <span className="text-xs font-black text-white font-mono truncate block">
               {filtered[1] ? `${filtered[1].total_score} PTS` : '---'}
             </span>
           </div>
-          <div className="text-center p-2.5 sm:p-3 rounded-xl bg-amber-700/10 border border-amber-700/20 flex-1 sm:flex-initial min-w-24">
-            <Medal className="w-5 sm:w-6 h-5 sm:h-6 text-amber-600 mx-auto mb-1" />
+          <div className="text-center p-2 sm:p-3 rounded-xl bg-amber-700/10 border border-amber-700/20 min-w-0">
+            <Medal className="w-4 sm:w-5 h-4 sm:h-5 text-amber-600 mx-auto mb-1 shrink-0" />
             <span className="text-[10px] font-bold text-amber-500 block">Rank #3</span>
-            <span className="text-xs font-black text-white font-mono">
+            <span className="text-xs font-black text-white font-mono truncate block">
               {filtered[2] ? `${filtered[2].total_score} PTS` : '---'}
             </span>
           </div>
@@ -172,9 +172,9 @@ export default function LeaderboardView({ totalTasksCount = 0 }: LeaderboardView
       </div>
 
       {/* Real-time Indicator & Manual Refresh */}
-      <div className="flex items-center justify-between gap-3 text-xs text-slate-400 px-1">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-slate-400 px-1">
         <div className="flex items-center gap-2">
-          <span className="relative flex h-2 w-2">
+          <span className="relative flex h-2 w-2 shrink-0">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
@@ -185,7 +185,7 @@ export default function LeaderboardView({ totalTasksCount = 0 }: LeaderboardView
         <button
           onClick={handleManualRefresh}
           disabled={isRefreshing}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 hover:text-white transition-all cursor-pointer disabled:opacity-50"
+          className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 hover:text-white transition-all cursor-pointer disabled:opacity-50 min-h-9.5 self-start sm:self-auto touch-manipulation"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-cyan-400' : ''}`} />
           <span>{isRefreshing ? 'Refreshing...' : 'Refresh Standings'}</span>
@@ -193,22 +193,22 @@ export default function LeaderboardView({ totalTasksCount = 0 }: LeaderboardView
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
         <div className="relative sm:col-span-2">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
           <input
             type="text"
             placeholder="Search participant name, reg number, department, or batch..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-2xl bg-slate-900/90 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-all"
+            className="w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-2xl bg-slate-900/90 border border-slate-800 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-all min-h-11"
           />
         </div>
 
         <select
           value={selectedDept}
           onChange={(e) => setSelectedDept(e.target.value)}
-          className="w-full px-4 py-2.5 sm:py-3 rounded-2xl bg-slate-900/90 border border-slate-800 text-xs text-white focus:outline-none focus:border-cyan-400 transition-all"
+          className="w-full px-3.5 py-2.5 sm:py-3 rounded-2xl bg-slate-900/90 border border-slate-800 text-xs sm:text-sm text-white focus:outline-none focus:border-cyan-400 transition-all min-h-11"
         >
           {departments.map((dept) => (
             <option key={dept} value={dept}>{dept}</option>
@@ -216,17 +216,23 @@ export default function LeaderboardView({ totalTasksCount = 0 }: LeaderboardView
         </select>
       </div>
 
-      {/* Leaderboard Table */}
-      <div className="rounded-3xl glass-panel overflow-hidden border border-slate-800">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+      {/* Leaderboard Table with Responsive Overflow */}
+      <div className="rounded-2xl sm:rounded-3xl glass-panel overflow-hidden border border-slate-800">
+        {/* Mobile Swipe Hint */}
+        <div className="md:hidden px-3.5 py-2 bg-slate-950/90 border-b border-slate-800/80 text-[10px] text-slate-400 flex items-center justify-between">
+          <span>Swipe horizontally to view full table details</span>
+          <span className="text-cyan-400 font-mono font-bold">&larr; Swipe &rarr;</span>
+        </div>
+
+        <div className="responsive-table-wrapper overflow-x-auto">
+          <table className="w-full text-left text-xs min-w-155">
             <thead className="bg-slate-950/80 text-slate-400 border-b border-slate-800 uppercase font-mono text-[10px] tracking-wider">
               <tr>
-                <th className="py-3.5 sm:py-4 px-4 sm:px-6 text-center w-14">Rank</th>
-                <th className="py-3.5 sm:py-4 px-4 sm:px-6">Competitor Details</th>
-                <th className="py-3.5 sm:py-4 px-4 sm:px-6 hidden md:table-cell">Batch</th>
-                <th className="py-3.5 sm:py-4 px-4 sm:px-6 text-center">Tasks Completed</th>
-                <th className="py-3.5 sm:py-4 px-4 sm:px-6 text-right">Cumulative Score</th>
+                <th className="py-3.5 sm:py-4 px-3 sm:px-6 text-center w-14">Rank</th>
+                <th className="py-3.5 sm:py-4 px-3 sm:px-6">Competitor Details</th>
+                <th className="py-3.5 sm:py-4 px-3 sm:px-6 hidden md:table-cell">Batch</th>
+                <th className="py-3.5 sm:py-4 px-3 sm:px-6 text-center">Tasks Completed</th>
+                <th className="py-3.5 sm:py-4 px-3 sm:px-6 text-right">Cumulative Score</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60">

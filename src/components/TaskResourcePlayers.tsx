@@ -127,7 +127,7 @@ export default function TaskResourcePlayers({
             {pdfResources.map((pdf, idx) => (
               <div
                 key={idx}
-                className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-amber-500/40 transition-all flex items-center justify-between gap-3 group"
+                className="p-3.5 sm:p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-amber-500/40 transition-all flex flex-col xs:flex-row xs:items-center justify-between gap-3 group"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
@@ -147,10 +147,10 @@ export default function TaskResourcePlayers({
                   href={pdf.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-semibold shrink-0 transition-all"
+                  className="flex items-center justify-center gap-1.5 min-h-9.5 px-3.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-semibold shrink-0 transition-all touch-manipulation"
                 >
                   <span>Open PDF</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
+                  <ExternalLink className="w-3.5 h-3.5 shrink-0" />
                 </a>
               </div>
             ))}
@@ -174,7 +174,7 @@ export default function TaskResourcePlayers({
             {pptxResources.map((pptx, idx) => (
               <div
                 key={idx}
-                className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-orange-500/40 transition-all flex items-center justify-between gap-3 group"
+                className="p-3.5 sm:p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-orange-500/40 transition-all flex flex-col xs:flex-row xs:items-center justify-between gap-3 group"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400 shrink-0">
@@ -194,10 +194,10 @@ export default function TaskResourcePlayers({
                   href={pptx.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 text-orange-300 border border-orange-500/30 text-xs font-semibold shrink-0 transition-all"
+                  className="flex items-center justify-center gap-1.5 min-h-9.5 px-3.5 py-1.5 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 text-orange-300 border border-orange-500/30 text-xs font-semibold shrink-0 transition-all touch-manipulation"
                 >
                   <span>Download Deck</span>
-                  <Download className="w-3.5 h-3.5" />
+                  <Download className="w-3.5 h-3.5 shrink-0" />
                 </a>
               </div>
             ))}
@@ -222,7 +222,7 @@ export default function TaskResourcePlayers({
               <div
                 key={idx}
                 onClick={() => setSelectedImage(img.url)}
-                className="group relative rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 aspect-video cursor-pointer hover:border-cyan-400 transition-all"
+                className="group relative rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 aspect-video cursor-pointer hover:border-cyan-400 transition-all touch-manipulation"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -261,7 +261,7 @@ export default function TaskResourcePlayers({
                 href={res.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-cyan-400/40 text-xs text-slate-300 hover:text-white flex items-center justify-between gap-2 transition-all"
+                className="min-h-10.5 p-3 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-cyan-400/40 text-xs text-slate-300 hover:text-white flex items-center justify-between gap-2 transition-all touch-manipulation"
               >
                 <span className="truncate">{res.title || res.url}</span>
                 <ExternalLink className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
@@ -274,13 +274,14 @@ export default function TaskResourcePlayers({
       {/* LIGHTBOX MODAL FOR IMAGES */}
       {selectedImage && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4"
           onClick={() => setSelectedImage(null)}
         >
           <div className="relative max-w-4xl max-h-[90vh] w-full flex flex-col items-center">
             <button
               onClick={() => setSelectedImage(null)}
-              className="absolute -top-10 right-0 p-2 rounded-full bg-slate-800 text-slate-300 hover:text-white"
+              aria-label="Close image preview"
+              className="absolute top-2 right-2 sm:-top-11 sm:right-0 w-10 h-10 rounded-full bg-slate-800/90 border border-slate-700 text-slate-300 hover:text-white flex items-center justify-center touch-manipulation z-10 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>

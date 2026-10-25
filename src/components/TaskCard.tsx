@@ -29,7 +29,7 @@ export default function TaskCard({ task, submission }: TaskCardProps) {
   return (
     <Link
       href={`/tasks/${task.id}`}
-      className={`group relative rounded-2xl p-4 sm:p-5 flex flex-col justify-between transition-all duration-300 border ${
+      className={`group relative rounded-2xl p-4 sm:p-5 flex flex-col justify-between transition-all duration-300 border touch-manipulation min-h-43.75 ${
         isCompleted
           ? 'bg-slate-900/50 hover:bg-slate-900/80 border-emerald-500/30 hover:border-emerald-500/60 shadow-sm shadow-emerald-500/5'
           : 'glass-panel hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/10 hover:-translate-y-0.5'
@@ -38,17 +38,17 @@ export default function TaskCard({ task, submission }: TaskCardProps) {
       <div>
         {/* Top Meta: Number, Category & Points */}
         <div className="flex items-center justify-between gap-2 mb-2.5">
-          <div className="flex items-center gap-2">
-            <span className="flex items-center justify-center px-2 py-0.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-[11px] font-black text-cyan-400 font-mono">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <span className="flex items-center justify-center px-2 py-0.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-[11px] font-black text-cyan-400 font-mono shrink-0">
               #{task.id < 10 ? `0${task.id}` : task.id}
             </span>
-            <span className="text-[11px] font-medium text-slate-400 truncate max-w-30 sm:max-w-37.5">
+            <span className="text-[11px] font-medium text-slate-400 truncate">
               {task.category}
             </span>
           </div>
 
           <div className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px] font-bold font-mono shrink-0">
-            <Award className="w-3 h-3 text-amber-400" />
+            <Award className="w-3 h-3 text-amber-400 shrink-0" />
             <span>{task.points} PTS</span>
           </div>
         </div>

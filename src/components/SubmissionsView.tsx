@@ -70,7 +70,7 @@ export default function SubmissionsView({
     <div className="space-y-4 sm:space-y-6">
       
       {/* Header with Individual Participant Details */}
-      <div className="p-5 sm:p-6 rounded-3xl glass-panel flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl glass-panel flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
             <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400">
@@ -100,7 +100,7 @@ export default function SubmissionsView({
 
         <button
           onClick={() => window.print()}
-          className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white border border-slate-700 transition-all self-end sm:self-center"
+          className="flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white border border-slate-700 transition-all self-stretch sm:self-center min-h-10 touch-manipulation cursor-pointer"
         >
           <Download className="w-3.5 h-3.5 text-cyan-400" />
           <span>Export Receipt</span>
@@ -108,7 +108,7 @@ export default function SubmissionsView({
       </div>
 
       {/* Submissions Cards */}
-      <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 gap-3.5 sm:gap-4">
         {tasks.map((task) => {
           const sub = submissions[task.id];
           if (!sub) return null;
@@ -116,10 +116,10 @@ export default function SubmissionsView({
           return (
             <div 
               key={task.id}
-              className="p-5 sm:p-6 rounded-3xl glass-panel border border-slate-800 hover:border-cyan-500/30 transition-all flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 sm:gap-6"
+              className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl glass-panel border border-slate-800 hover:border-cyan-500/30 transition-all flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 sm:gap-6"
             >
               {/* Task Details */}
-              <div className="space-y-1.5 max-w-md">
+              <div className="space-y-1.5 max-w-xl">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-mono text-xs font-bold text-cyan-400 bg-blue-500/10 px-2 py-0.5 rounded-lg border border-blue-500/20">
                     TASK #{task.id}
@@ -140,8 +140,8 @@ export default function SubmissionsView({
                 <h3 className="text-sm sm:text-base font-bold text-white">
                   {task.title}
                 </h3>
-                <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
-                  <Calendar className="w-3.5 h-3.5" />
+                <div className="flex items-center gap-1.5 text-[11px] text-slate-500 flex-wrap">
+                  <Calendar className="w-3.5 h-3.5 shrink-0" />
                   <span>Submitted on {new Date(sub.submitted_at || sub.updated_at).toLocaleString()}</span>
                 </div>
 
@@ -154,17 +154,17 @@ export default function SubmissionsView({
               </div>
 
               {/* Output Formats Attached */}
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
                 {sub.pptx_url ? (
                   <a
                     href={sub.pptx_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold hover:bg-amber-500/20 transition-all"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold hover:bg-amber-500/20 transition-all min-h-9.5 touch-manipulation"
                   >
-                    <FileText className="w-3.5 h-3.5 text-amber-400" />
-                    <span className="truncate max-w-32.5">{sub.pptx_file_name || 'Slide Deck'}</span>
-                    <ExternalLink className="w-3 h-3 text-amber-400/80" />
+                    <FileText className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    <span className="truncate max-w-28 sm:max-w-36">{sub.pptx_file_name || 'Slide Deck'}</span>
+                    <ExternalLink className="w-3 h-3 text-amber-400/80 shrink-0" />
                   </a>
                 ) : null}
 
@@ -173,11 +173,11 @@ export default function SubmissionsView({
                     href={sub.video_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-cyan-300 text-xs font-semibold hover:bg-blue-500/20 transition-all"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-cyan-300 text-xs font-semibold hover:bg-blue-500/20 transition-all min-h-9.5 touch-manipulation"
                   >
-                    <Video className="w-3.5 h-3.5 text-cyan-400" />
-                    <span className="truncate max-w-32.5">{sub.video_file_name || 'Demo Video'}</span>
-                    <ExternalLink className="w-3 h-3 text-cyan-400/80" />
+                    <Video className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                    <span className="truncate max-w-28 sm:max-w-36">{sub.video_file_name || 'Demo Video'}</span>
+                    <ExternalLink className="w-3 h-3 text-cyan-400/80 shrink-0" />
                   </a>
                 ) : null}
 
@@ -186,30 +186,30 @@ export default function SubmissionsView({
                     href={sub.github_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold hover:bg-purple-500/20 transition-all"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold hover:bg-purple-500/20 transition-all min-h-9.5 touch-manipulation"
                   >
-                    <Github className="w-3.5 h-3.5 text-purple-400" />
-                    <span className="truncate max-w-32.5">{sub.github_url.replace('https://github.com/', '')}</span>
-                    <ExternalLink className="w-3 h-3 text-purple-400/80" />
+                    <Github className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                    <span className="truncate max-w-28 sm:max-w-36">{sub.github_url.replace('https://github.com/', '')}</span>
+                    <ExternalLink className="w-3 h-3 text-purple-400/80 shrink-0" />
                   </a>
                 ) : null}
               </div>
 
               {/* Actions & Score */}
-              <div className="flex items-center gap-2.5 w-full lg:w-auto justify-between lg:justify-end">
+              <div className="flex items-center gap-2.5 w-full lg:w-auto justify-between lg:justify-end border-t lg:border-t-0 border-slate-800/80 pt-3 lg:pt-0">
                 {sub.score !== null && sub.score !== undefined && (
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-950/60 border border-purple-800 text-xs font-bold text-purple-300">
-                    <Award className="w-4 h-4 text-purple-400" />
+                  <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-purple-950/60 border border-purple-800 text-xs font-bold text-purple-300">
+                    <Award className="w-4 h-4 text-purple-400 shrink-0" />
                     <span>{sub.score} / {task.points} PTS</span>
                   </div>
                 )}
 
                 <button
                   onClick={() => onEditTask(task)}
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white border border-slate-700 transition-all"
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white border border-slate-700 transition-all min-h-10.5 touch-manipulation cursor-pointer"
                 >
-                  <Edit3 className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>Update</span>
+                  <Edit3 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                  <span>Update Deliverable</span>
                 </button>
               </div>
 

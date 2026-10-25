@@ -5,12 +5,19 @@
   --foreground: #f8fafc;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+  overflow-x: hidden;
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   overflow-x: hidden;
+  width: 100%;
   background-image: 
     radial-gradient(circle at 15% 10%, rgba(37, 99, 235, 0.12) 0%, transparent 40%),
     radial-gradient(circle at 85% 25%, rgba(6, 182, 212, 0.1) 0%, transparent 45%),
@@ -98,4 +105,47 @@ body {
   stroke-dashoffset: 0;
   transform-origin: center;
   animation: checkmark-circle 0.55s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+/* Touch-friendly target sizing & mobile utilities */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Prevent text overflow on narrow viewports */
+.text-balance-fluid {
+  text-wrap: balance;
+}
+
+/* Responsive table container with smooth scrolling & momentum */
+.responsive-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+/* Mobile drawer backdrop */
+@keyframes backdrop-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes drawer-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-backdrop {
+  animation: backdrop-fade 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-drawer {
+  animation: drawer-slide-down 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

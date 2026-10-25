@@ -232,78 +232,78 @@ export default function Home() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8 lg:py-10">
         
         {/* TAB 1: OVERVIEW & HUB */}
         {activeTab === 'overview' && (
-          <div className="space-y-8 sm:space-y-10 animate-fade-in">
+          <div className="space-y-6 sm:space-y-8 lg:space-y-10 animate-fade-in">
             
             {/* Clean Minimal Hero Section */}
-            <div className="relative rounded-3xl p-6 sm:p-10 lg:p-12 glass-panel border border-slate-800/80 overflow-hidden">
+            <div className="relative rounded-2xl sm:rounded-3xl p-5 sm:p-8 lg:p-12 glass-panel border border-slate-800/80 overflow-hidden">
               
               {/* Background Glow Accents */}
-              <div className="absolute top-0 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute bottom-0 left-1/3 w-64 sm:w-80 h-64 sm:h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute top-0 right-0 w-64 sm:w-96 h-64 sm:h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute bottom-0 left-1/3 w-56 sm:w-80 h-56 sm:h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
               
               <div className="relative z-10 max-w-3xl">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold tracking-wide bg-linear-to-r from-blue-500/20 to-cyan-500/20 text-cyan-300 border border-blue-500/30 mb-4 sm:mb-6 flex-wrap">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold tracking-wide bg-linear-to-r from-blue-500/20 to-cyan-500/20 text-cyan-300 border border-blue-500/30 mb-3 sm:mb-5 flex-wrap">
                   <Rocket className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
                   <span>ALPHA SCIENCE LAB (ASL) NATIONAL ARENA</span>
                 </div>
 
-                <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+                <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight text-balance-fluid">
                   Multi-Stage Technical Innovation Arena
                 </h1>
 
-                <p className="mt-3 sm:mt-4 text-xs sm:text-base text-slate-300 leading-relaxed max-w-2xl">
+                <p className="mt-3 sm:mt-4 text-xs sm:text-sm md:text-base text-slate-300 leading-relaxed max-w-2xl">
                   Welcome to the Alpha Science Lab competition hub. Complete and submit technical milestones powered by a dynamic database engine. Inspect embedded YouTube tutorials, schematics, and presentation decks, then submit your GitHub monorepo.
                 </p>
 
-                {/* Call to Actions */}
-                <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+                {/* Call to Actions with Touch-Friendly Hit Targets */}
+                <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-4">
                   <button
                     onClick={() => setCurrentTab('tasks')}
-                    className="flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl text-xs font-bold text-white bg-linear-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-xl shadow-blue-600/30 transition-all group cursor-pointer"
+                    className="flex items-center justify-center gap-2 px-5 sm:px-6 py-3.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold text-white bg-linear-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-xl shadow-blue-600/30 transition-all group cursor-pointer min-h-11.5 touch-manipulation"
                   >
                     <span>View {tasks.length} Active Challenges</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform shrink-0" />
                   </button>
 
                   {!userProfile && (
                     <button
                       onClick={() => setAuthModalOpen(true)}
-                      className="flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl text-xs font-bold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700 transition-all cursor-pointer"
+                      className="flex items-center justify-center gap-2 px-5 py-3.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700 transition-all cursor-pointer min-h-11.5 touch-manipulation"
                     >
-                      <ShieldCheck className="w-4 h-4 text-cyan-400" />
+                      <ShieldCheck className="w-4 h-4 text-cyan-400 shrink-0" />
                       <span>Individual Register / Login</span>
                     </button>
                   )}
 
                   <button
                     onClick={() => setCurrentTab('rules')}
-                    className="flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl text-xs font-bold text-slate-300 hover:text-white bg-slate-900/60 hover:bg-slate-800 border border-slate-800 transition-all cursor-pointer"
+                    className="flex items-center justify-center gap-2 px-5 py-3.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold text-slate-300 hover:text-white bg-slate-900/60 hover:bg-slate-800 border border-slate-800 transition-all cursor-pointer min-h-11.5 touch-manipulation"
                   >
-                    <BookOpen className="w-4 h-4 text-slate-400" />
+                    <BookOpen className="w-4 h-4 text-slate-400 shrink-0" />
                     <span>View Rubric & Rules</span>
                   </button>
                 </div>
               </div>
 
               {/* Supported Formats Pill Strip */}
-              <div className="mt-8 sm:mt-10 pt-5 sm:pt-6 border-t border-slate-800/80 flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-slate-400">
-                <span className="font-bold text-slate-500 uppercase tracking-wider text-[10px]">
+              <div className="mt-6 sm:mt-10 pt-4 sm:pt-6 border-t border-slate-800/80 flex flex-wrap items-center gap-3 sm:gap-6 text-xs text-slate-400">
+                <span className="font-bold text-slate-500 uppercase tracking-wider text-[10px] w-full sm:w-auto">
                   Accepted Output Formats:
                 </span>
-                <div className="flex items-center gap-2 text-slate-300 font-medium text-xs">
-                  <Github className="w-3.5 h-3.5 text-purple-400" />
+                <div className="flex items-center gap-1.5 text-slate-300 font-medium text-xs">
+                  <Github className="w-3.5 h-3.5 text-purple-400 shrink-0" />
                   <span>GitHub Monorepo</span>
                 </div>
-                <div className="flex items-center gap-2 text-slate-300 font-medium text-xs">
-                  <Video className="w-3.5 h-3.5 text-cyan-400" />
+                <div className="flex items-center gap-1.5 text-slate-300 font-medium text-xs">
+                  <Video className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
                   <span>Video Demonstrations</span>
                 </div>
-                <div className="flex items-center gap-2 text-slate-300 font-medium text-xs">
-                  <FileText className="w-3.5 h-3.5 text-amber-400" />
+                <div className="flex items-center gap-1.5 text-slate-300 font-medium text-xs">
+                  <FileText className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                   <span>PPTX & PDF Decks</span>
                 </div>
               </div>
@@ -319,24 +319,24 @@ export default function Home() {
 
             {/* Uncompleted Tasks Priority Section */}
             <div>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 mb-4">
                 <div>
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase font-mono">
                       Action Required
                     </span>
-                    <h2 className="text-lg sm:text-xl font-extrabold text-white">
+                    <h2 className="text-base sm:text-xl font-extrabold text-white">
                       Uncompleted Challenges ({uncompletedTasks.length})
                     </h2>
                   </div>
                   <p className="text-xs text-slate-400">
-                    Small minimal cards for uncompleted tasks. Click any card to navigate directly to its dedicated detail page and submit.
+                    Active technical milestones. Click any card to navigate directly to its dedicated detail page and submit.
                   </p>
                 </div>
                 
                 <button
                   onClick={() => setCurrentTab('tasks')}
-                  className="text-xs font-bold text-cyan-400 hover:text-cyan-300 flex items-center gap-1.5 self-end sm:self-auto cursor-pointer"
+                  className="text-xs font-bold text-cyan-400 hover:text-cyan-300 flex items-center gap-1.5 self-start sm:self-auto cursor-pointer min-h-9.5 touch-manipulation"
                 >
                   <span>Explore All Tasks</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -344,13 +344,13 @@ export default function Home() {
               </div>
 
               {loadingTasks ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="h-44 rounded-2xl bg-slate-900/60 border border-slate-800 animate-pulse p-4" />
                   ))}
                 </div>
               ) : uncompletedTasks.length === 0 && tasks.length > 0 ? (
-                <div className="p-8 rounded-3xl bg-emerald-950/20 border border-emerald-500/30 text-center space-y-2">
+                <div className="p-6 sm:p-8 rounded-3xl bg-emerald-950/20 border border-emerald-500/30 text-center space-y-2">
                   <Sparkles className="w-8 h-8 text-emerald-400 mx-auto" />
                   <h3 className="text-base font-bold text-white">All Tasks Completed!</h3>
                   <p className="text-xs text-slate-400 max-w-sm mx-auto">
@@ -358,7 +358,7 @@ export default function Home() {
                   </p>
                 </div>
               ) : tasks.length === 0 ? (
-                <div className="p-8 rounded-3xl bg-slate-900/40 border border-slate-800 text-center space-y-2">
+                <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/40 border border-slate-800 text-center space-y-2">
                   <Clock className="w-8 h-8 text-slate-500 mx-auto" />
                   <h3 className="text-base font-bold text-white">No Custom Tasks Published Yet</h3>
                   <p className="text-xs text-slate-400 max-w-sm mx-auto">
@@ -366,7 +366,7 @@ export default function Home() {
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4 lg:gap-5">
                   {uncompletedTasks.slice(0, 6).map((task) => (
                     <TaskCard
                       key={task.id}
@@ -386,9 +386,9 @@ export default function Home() {
           <div className="space-y-6 animate-fade-in">
             
             {/* Header & Filter Bar */}
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-5 sm:p-6 rounded-3xl glass-panel">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 p-4 sm:p-6 rounded-2xl sm:rounded-3xl glass-panel">
               <div>
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                   <span className="font-mono text-xs font-bold text-cyan-400">{tasks.length} DYNAMIC CHALLENGES</span>
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-cyan-300 border border-blue-500/20">
                     Total: {totalAvailablePoints} PTS
@@ -401,16 +401,16 @@ export default function Home() {
                   Technical Submission Center
                 </h2>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Select any task card to open its dedicated detail page with embedded resource players and designated submission area.
+                  Select any challenge card to open its dedicated workspace with embedded resource players and designated submission inputs.
                 </p>
               </div>
 
               {/* Status and Category Filters */}
-              <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full lg:w-auto">
                 <select
                   value={filterCategory}
                   onChange={(e) => setFilterCategory(e.target.value)}
-                  className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-200 focus:outline-none focus:border-cyan-400 flex-1 sm:flex-initial"
+                  className="w-full sm:w-auto px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-200 focus:outline-none focus:border-cyan-400 min-h-10.5 touch-manipulation"
                 >
                   <option value="all">All Categories</option>
                   <option value="Ideation & Research">Ideation & Research</option>
@@ -423,12 +423,12 @@ export default function Home() {
                   <option value="Grand Finale">Grand Finale</option>
                 </select>
 
-                <div className="flex items-center rounded-xl bg-slate-900 border border-slate-700 p-1 flex-1 sm:flex-initial">
+                <div className="flex items-center rounded-xl bg-slate-900 border border-slate-700 p-1 w-full sm:w-auto overflow-x-auto scrollbar-none min-h-10.5">
                   <button
                     onClick={() => setFilterStatus('uncompleted')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap min-h-8.5 touch-manipulation ${
                       filterStatus === 'uncompleted'
-                        ? 'bg-cyan-600 text-white'
+                        ? 'bg-cyan-600 text-white shadow-sm'
                         : 'text-slate-400 hover:text-white'
                     }`}
                   >
@@ -436,9 +436,9 @@ export default function Home() {
                   </button>
                   <button
                     onClick={() => setFilterStatus('all')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap min-h-8.5 touch-manipulation ${
                       filterStatus === 'all'
-                        ? 'bg-cyan-600 text-white'
+                        ? 'bg-cyan-600 text-white shadow-sm'
                         : 'text-slate-400 hover:text-white'
                     }`}
                   >
@@ -446,9 +446,9 @@ export default function Home() {
                   </button>
                   <button
                     onClick={() => setFilterStatus('completed')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap min-h-8.5 touch-manipulation ${
                       filterStatus === 'completed'
-                        ? 'bg-cyan-600 text-white'
+                        ? 'bg-cyan-600 text-white shadow-sm'
                         : 'text-slate-400 hover:text-white'
                     }`}
                   >
@@ -460,7 +460,7 @@ export default function Home() {
 
             {/* Task Grid */}
             {loadingTasks ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4 lg:gap-5">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
                   <div key={i} className="h-44 rounded-2xl bg-slate-900/60 border border-slate-800 animate-pulse p-4" />
                 ))}

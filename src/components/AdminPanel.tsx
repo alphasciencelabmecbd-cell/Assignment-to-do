@@ -868,13 +868,13 @@ export default function AdminPanel({
     <div className="space-y-6 sm:space-y-8 animate-fade-in">
       
       {/* Top Banner & Control Deck */}
-      <div className="relative rounded-3xl bg-linear-to-b from-slate-900/90 to-slate-950 border border-cyan-500/30 p-5 sm:p-7 shadow-2xl overflow-hidden backdrop-blur-xl">
+      <div className="relative rounded-2xl sm:rounded-3xl bg-linear-to-b from-slate-900/90 to-slate-950 border border-cyan-500/30 p-4 sm:p-7 shadow-2xl overflow-hidden backdrop-blur-xl">
         <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2.5 mb-1.5 flex-wrap">
+            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
               <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
                 <ShieldAlert className="w-3.5 h-3.5" />
                 Jury & Administrator Control Hub
@@ -883,39 +883,39 @@ export default function AdminPanel({
                 &bull; {currentUser ? `Active Admin: ${currentUser.full_name || currentUser.email}` : 'Dynamic Database Mode'}
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight text-balance-fluid">
               Competition Administration & Evaluation Engine
             </h1>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl">
+            <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl leading-relaxed">
               Create, edit, and delete custom technical challenges, embed media resources, monitor participant completion states, and evaluate submissions with direct GitHub repo links.
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 self-end md:self-center flex-wrap justify-end">
+          <div className="w-full md:w-auto flex items-center gap-2 sm:gap-2.5 flex-wrap justify-start sm:justify-end">
             <button
               onClick={() => {
                 setShowCreateParticipantModal(true);
                 generateRandomRegNo();
                 generateRandomPassword();
               }}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-linear-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-xs font-bold text-white transition-all shadow-md shadow-cyan-900/30 cursor-pointer"
+              className="flex-1 sm:flex-initial min-h-10 flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-linear-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-xs font-bold text-white transition-all shadow-md shadow-cyan-900/30 touch-manipulation cursor-pointer"
             >
-              <UserPlus className="w-3.5 h-3.5" />
+              <UserPlus className="w-3.5 h-3.5 shrink-0" />
               <span>Add Participant</span>
             </button>
             <button
               onClick={handleManualRefresh}
               disabled={refreshing}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-cyan-400 text-xs font-semibold text-slate-300 hover:text-white transition-all disabled:opacity-50 cursor-pointer"
+              className="min-h-10 flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-cyan-400 text-xs font-semibold text-slate-300 hover:text-white transition-all disabled:opacity-50 touch-manipulation cursor-pointer"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-cyan-400' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 shrink-0 ${refreshing ? 'animate-spin text-cyan-400' : ''}`} />
               <span>Refresh Data</span>
             </button>
             <button
               onClick={handleExportCSV}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-cyan-950/60 border border-cyan-500/40 hover:border-cyan-400 text-xs font-semibold text-cyan-300 hover:text-white transition-all shadow-sm cursor-pointer"
+              className="min-h-10 flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-cyan-950/60 border border-cyan-500/40 hover:border-cyan-400 text-xs font-semibold text-cyan-300 hover:text-white transition-all shadow-sm touch-manipulation cursor-pointer"
             >
-              <Download className="w-3.5 h-3.5" />
+              <Download className="w-3.5 h-3.5 shrink-0" />
               <span>Export CSV</span>
             </button>
           </div>
@@ -936,85 +936,85 @@ export default function AdminPanel({
               )}
               <span className="font-medium">{message.text}</span>
             </div>
-            <button onClick={() => setMessage(null)} className="p-1 hover:text-white cursor-pointer">
+            <button onClick={() => setMessage(null)} className="p-1 hover:text-white cursor-pointer touch-manipulation">
               <X className="w-3.5 h-3.5" />
             </button>
           </div>
         )}
 
         {/* Key Metrics Strip */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mt-6">
-          <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800/80">
-            <span className="text-[11px] font-semibold text-slate-400 block">Total Participants</span>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-xl sm:text-2xl font-bold text-white">{metrics.totalParticipants}</span>
-              <span className="text-[10px] text-cyan-400">Registered</span>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3 mt-6">
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800/80">
+            <span className="text-[10px] sm:text-[11px] font-semibold text-slate-400 block truncate">Total Participants</span>
+            <div className="flex items-baseline gap-1.5 sm:gap-2 mt-1">
+              <span className="text-lg sm:text-xl md:text-2xl font-bold text-white font-mono">{metrics.totalParticipants}</span>
+              <span className="text-[9px] sm:text-[10px] text-cyan-400">Registered</span>
             </div>
           </div>
-          <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800/80">
-            <span className="text-[11px] font-semibold text-slate-400 block">Total Submissions</span>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-xl sm:text-2xl font-bold text-cyan-400">{metrics.totalSubmissions}</span>
-              <span className="text-[10px] text-slate-400">Uploaded</span>
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800/80">
+            <span className="text-[10px] sm:text-[11px] font-semibold text-slate-400 block truncate">Total Submissions</span>
+            <div className="flex items-baseline gap-1.5 sm:gap-2 mt-1">
+              <span className="text-lg sm:text-xl md:text-2xl font-bold text-cyan-400 font-mono">{metrics.totalSubmissions}</span>
+              <span className="text-[9px] sm:text-[10px] text-slate-400">Uploaded</span>
             </div>
           </div>
-          <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800/80">
-            <span className="text-[11px] font-semibold text-slate-400 block">Pending Review</span>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-xl sm:text-2xl font-bold text-amber-400">{metrics.underReview}</span>
-              <span className="text-[10px] text-amber-500">Needs evaluation</span>
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800/80">
+            <span className="text-[10px] sm:text-[11px] font-semibold text-slate-400 block truncate">Pending Review</span>
+            <div className="flex items-baseline gap-1.5 sm:gap-2 mt-1">
+              <span className="text-lg sm:text-xl md:text-2xl font-bold text-amber-400 font-mono">{metrics.underReview}</span>
+              <span className="text-[9px] sm:text-[10px] text-amber-500">Needs review</span>
             </div>
           </div>
-          <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800/80">
-            <span className="text-[11px] font-semibold text-slate-400 block">Evaluated Tasks</span>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-xl sm:text-2xl font-bold text-emerald-400">{metrics.evaluated}</span>
-              <span className="text-[10px] text-emerald-500">Graded</span>
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800/80">
+            <span className="text-[10px] sm:text-[11px] font-semibold text-slate-400 block truncate">Evaluated Tasks</span>
+            <div className="flex items-baseline gap-1.5 sm:gap-2 mt-1">
+              <span className="text-lg sm:text-xl md:text-2xl font-bold text-emerald-400 font-mono">{metrics.evaluated}</span>
+              <span className="text-[9px] sm:text-[10px] text-emerald-500">Graded</span>
             </div>
           </div>
-          <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800/80 col-span-2 lg:col-span-1">
-            <span className="text-[11px] font-semibold text-slate-400 block">Average Score</span>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-xl sm:text-2xl font-bold text-indigo-400">{metrics.avgScore}</span>
-              <span className="text-[10px] text-slate-400">PTS</span>
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800/80 col-span-2 sm:col-span-1 lg:col-span-1">
+            <span className="text-[10px] sm:text-[11px] font-semibold text-slate-400 block truncate">Average Score</span>
+            <div className="flex items-baseline gap-1.5 sm:gap-2 mt-1">
+              <span className="text-lg sm:text-xl md:text-2xl font-bold text-indigo-400 font-mono">{metrics.avgScore}</span>
+              <span className="text-[9px] sm:text-[10px] text-slate-400">PTS</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Master Competition Deadline Control Deck (Spec 5) */}
-      <div className="p-4 sm:p-5 rounded-3xl bg-linear-to-r from-cyan-950/80 via-slate-900/90 to-indigo-950/80 border border-cyan-500/40 shadow-xl backdrop-blur-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-linear-to-r from-cyan-950/80 via-slate-900/90 to-indigo-950/80 border border-cyan-500/40 shadow-xl backdrop-blur-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="p-2 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shrink-0">
               <Clock className="w-4 h-4" />
             </span>
-            <h3 className="text-sm font-bold text-white tracking-wide">
+            <h3 className="text-xs sm:text-sm font-bold text-white tracking-wide">
               Master Competition Deadline Control
             </h3>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
               Unified Global Timer
             </span>
           </div>
-          <p className="text-xs text-slate-400 max-w-xl">
+          <p className="text-xs text-slate-400 max-w-xl leading-relaxed">
             Sets the single master deadline countdown in the platform header. Decommissions individual task deadlines and automatically restricts submissions when expired.
           </p>
         </div>
 
-        <form onSubmit={handleSaveMasterDeadline} className="flex items-center gap-2.5 w-full md:w-auto">
+        <form onSubmit={handleSaveMasterDeadline} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto">
           <div className="relative flex-1 md:w-64">
             <input
               type="datetime-local"
               value={adminDeadline}
               onChange={(e) => setAdminDeadline(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400 font-mono shadow-inner"
+              className="w-full min-h-11 px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-sm sm:text-xs text-white focus:outline-none focus:border-cyan-400 font-mono shadow-inner"
               required
             />
           </div>
           <button
             type="submit"
             disabled={savingDeadline}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-linear-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-bold shadow-lg shadow-cyan-500/20 transition-all disabled:opacity-50 shrink-0 cursor-pointer"
+            className="flex items-center justify-center gap-1.5 min-h-11 px-4 py-2.5 rounded-xl bg-linear-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-bold shadow-lg shadow-cyan-500/20 transition-all disabled:opacity-50 shrink-0 touch-manipulation cursor-pointer"
           >
             {savingDeadline ? (
               <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -1027,16 +1027,16 @@ export default function AdminPanel({
       </div>
 
       {/* Admin Navigation Subtabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none touch-pan-x" style={{ WebkitOverflowScrolling: 'touch' }}>
         <button
           onClick={() => setActiveTab('submissions')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+          className={`flex items-center gap-2 min-h-10.5 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 touch-manipulation cursor-pointer ${
             activeTab === 'submissions'
               ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-600/30'
               : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
           }`}
         >
-          <FileCheck2 className="w-4 h-4" />
+          <FileCheck2 className="w-4 h-4 shrink-0" />
           <span>Participant Submissions</span>
           <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-950/60 font-mono">
             {submissions.length}
@@ -1045,13 +1045,13 @@ export default function AdminPanel({
 
         <button
           onClick={() => setActiveTab('participants')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+          className={`flex items-center gap-2 min-h-10.5 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 touch-manipulation cursor-pointer ${
             activeTab === 'participants'
               ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
               : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
           }`}
         >
-          <Users className="w-4 h-4" />
+          <Users className="w-4 h-4 shrink-0" />
           <span>Participant Monitoring Matrix</span>
           <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-950/60 font-mono">
             {participants.length}
@@ -1060,13 +1060,13 @@ export default function AdminPanel({
 
         <button
           onClick={() => setActiveTab('tasks')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+          className={`flex items-center gap-2 min-h-10.5 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 touch-manipulation cursor-pointer ${
             activeTab === 'tasks'
               ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
               : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
           }`}
         >
-          <Layers className="w-4 h-4" />
+          <Layers className="w-4 h-4 shrink-0" />
           <span>Tasks & Media Resources</span>
           <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-950/60 font-mono">
             {tasks.length}
@@ -1075,25 +1075,25 @@ export default function AdminPanel({
 
         <button
           onClick={() => setActiveTab('new-task')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+          className={`flex items-center gap-2 min-h-10.5 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 touch-manipulation cursor-pointer ${
             activeTab === 'new-task'
               ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30'
               : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
           }`}
         >
-          <PlusCircle className="w-4 h-4" />
+          <PlusCircle className="w-4 h-4 shrink-0" />
           <span>Create Custom Task</span>
         </button>
 
         <button
           onClick={() => setActiveTab('projects')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+          className={`flex items-center gap-2 min-h-10.5 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 touch-manipulation cursor-pointer ${
             activeTab === 'projects'
               ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
               : 'bg-slate-900/80 text-slate-400 hover:text-white border border-slate-800'
           }`}
         >
-          <Sparkles className="w-4 h-4" />
+          <Sparkles className="w-4 h-4 shrink-0" />
           <span>Showcase Projects</span>
           <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-950/60 font-mono">
             {projects.length}
@@ -1108,15 +1108,15 @@ export default function AdminPanel({
         <div className="space-y-4">
           
           {/* Filter Bar */}
-          <div className="flex flex-col sm:flex-row gap-3 p-4 rounded-2xl bg-slate-900/90 border border-slate-800">
+          <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 p-3.5 sm:p-4 rounded-2xl bg-slate-900/90 border border-slate-800">
             <div className="relative flex-1">
-              <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+              <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
               <input
                 type="text"
                 placeholder="Search participant name, reg number, email, or task..."
                 value={searchSubmission}
                 onChange={(e) => setSearchSubmission(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                className="w-full min-h-11 pl-10 pr-4 py-2 rounded-xl bg-slate-950 border border-slate-800 text-sm sm:text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
               />
             </div>
 
@@ -1124,7 +1124,7 @@ export default function AdminPanel({
               <select
                 value={filterTask}
                 onChange={(e) => setFilterTask(e.target.value)}
-                className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-cyan-400"
+                className="flex-1 sm:flex-initial min-h-11 px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-sm sm:text-xs text-slate-300 focus:outline-none focus:border-cyan-400"
               >
                 <option value="all">All Tasks ({tasks.length})</option>
                 {tasks.map((t) => (
@@ -1137,7 +1137,7 @@ export default function AdminPanel({
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-cyan-400"
+                className="flex-1 sm:flex-initial min-h-11 px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-sm sm:text-xs text-slate-300 focus:outline-none focus:border-cyan-400"
               >
                 <option value="all">All Statuses</option>
                 <option value="submitted">Submitted</option>
@@ -1155,7 +1155,7 @@ export default function AdminPanel({
               Loading submissions data from database...
             </div>
           ) : filteredSubmissions.length === 0 ? (
-            <div className="p-12 rounded-3xl bg-slate-900/40 border border-slate-800 text-center">
+            <div className="p-8 sm:p-12 rounded-2xl sm:rounded-3xl bg-slate-900/40 border border-slate-800 text-center">
               <FileCheck2 className="w-10 h-10 text-slate-600 mx-auto mb-3" />
               <h3 className="text-sm font-bold text-white">No Submissions Found</h3>
               <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
@@ -1171,7 +1171,7 @@ export default function AdminPanel({
                 return (
                   <div
                     key={sub.id}
-                    className="p-4 sm:p-5 rounded-2xl bg-slate-900/70 border border-slate-800/80 hover:border-cyan-500/40 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-4"
+                    className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-slate-900/70 border border-slate-800/80 hover:border-cyan-500/40 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-4"
                   >
                     <div className="space-y-2 min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -1225,12 +1225,12 @@ export default function AdminPanel({
                             href={sub.github_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-950/60 hover:bg-purple-900/80 border border-purple-500/40 text-purple-200 hover:text-white font-mono text-xs font-bold transition-all shadow-sm"
+                            className="flex items-center gap-1.5 min-h-9.5 px-3 py-1.5 rounded-xl bg-purple-950/60 hover:bg-purple-900/80 border border-purple-500/40 text-purple-200 hover:text-white font-mono text-xs font-bold transition-all shadow-sm touch-manipulation"
                             title="Direct link to evaluate participant's GitHub repository"
                           >
                             <Github className="w-3.5 h-3.5 text-purple-300 shrink-0" />
                             <span>Open Repo ({sub.github_branch || 'main'})</span>
-                            <ExternalLink className="w-3 h-3 text-purple-400" />
+                            <ExternalLink className="w-3 h-3 text-purple-400 shrink-0" />
                           </a>
                         )}
 
@@ -1239,11 +1239,11 @@ export default function AdminPanel({
                             href={sub.video_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-950/50 hover:bg-rose-900/70 border border-rose-500/40 text-rose-200 hover:text-white text-xs font-semibold transition-all"
+                            className="flex items-center gap-1.5 min-h-9.5 px-3 py-1.5 rounded-xl bg-rose-950/50 hover:bg-rose-900/70 border border-rose-500/40 text-rose-200 hover:text-white text-xs font-semibold transition-all touch-manipulation"
                           >
                             <Video className="w-3.5 h-3.5 text-rose-400 shrink-0" />
                             <span>Demo Video</span>
-                            <ExternalLink className="w-3 h-3 text-rose-400" />
+                            <ExternalLink className="w-3 h-3 text-rose-400 shrink-0" />
                           </a>
                         )}
 
@@ -1252,11 +1252,11 @@ export default function AdminPanel({
                             href={sub.pptx_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-950/50 hover:bg-orange-900/70 border border-orange-500/40 text-orange-200 hover:text-white text-xs font-semibold transition-all"
+                            className="flex items-center gap-1.5 min-h-9.5 px-3 py-1.5 rounded-xl bg-orange-950/50 hover:bg-orange-900/70 border border-orange-500/40 text-orange-200 hover:text-white text-xs font-semibold transition-all touch-manipulation"
                           >
                             <FileText className="w-3.5 h-3.5 text-orange-400 shrink-0" />
                             <span>Slide Deck ({sub.pptx_file_name || 'PPTX/PDF'})</span>
-                            <ExternalLink className="w-3 h-3 text-orange-400" />
+                            <ExternalLink className="w-3 h-3 text-orange-400 shrink-0" />
                           </a>
                         )}
 
@@ -1265,12 +1265,12 @@ export default function AdminPanel({
                             href={sub.document_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-950/50 hover:bg-blue-900/70 border border-blue-500/40 text-blue-200 hover:text-white text-xs font-semibold transition-all"
+                            className="flex items-center gap-1.5 min-h-9.5 px-3 py-1.5 rounded-xl bg-blue-950/50 hover:bg-blue-900/70 border border-blue-500/40 text-blue-200 hover:text-white text-xs font-semibold transition-all touch-manipulation"
                             title="Direct link to participant's document"
                           >
                             <FileText className="w-3.5 h-3.5 text-blue-400 shrink-0" />
                             <span>Document Link</span>
-                            <ExternalLink className="w-3 h-3 text-blue-400" />
+                            <ExternalLink className="w-3 h-3 text-blue-400 shrink-0" />
                           </a>
                         )}
 
@@ -1279,12 +1279,12 @@ export default function AdminPanel({
                             href={sub.image_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-950/50 hover:bg-emerald-900/70 border border-emerald-500/40 text-emerald-200 hover:text-white text-xs font-semibold transition-all"
+                            className="flex items-center gap-1.5 min-h-9.5 px-3 py-1.5 rounded-xl bg-emerald-950/50 hover:bg-emerald-900/70 border border-emerald-500/40 text-emerald-200 hover:text-white text-xs font-semibold transition-all touch-manipulation"
                             title="Direct link to participant's schematic/image"
                           >
                             <ImageIcon className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                             <span>Image Proof</span>
-                            <ExternalLink className="w-3 h-3 text-emerald-400" />
+                            <ExternalLink className="w-3 h-3 text-emerald-400 shrink-0" />
                           </a>
                         )}
 
@@ -1304,7 +1304,7 @@ export default function AdminPanel({
                     </div>
 
                     {/* Inline Point Management System (Spec 3) & Detailed Evaluation Modal */}
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-800">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-800">
                       <div className="flex items-center gap-1.5 bg-slate-950/90 p-1.5 rounded-xl border border-slate-800">
                         <span className="text-[10px] font-bold uppercase text-slate-400 pl-2">Score:</span>
                         <input
@@ -1314,14 +1314,14 @@ export default function AdminPanel({
                           placeholder={sub.score !== null && sub.score !== undefined ? String(sub.score) : '0-100'}
                           value={inlineScores[sub.id] !== undefined ? inlineScores[sub.id] : (sub.score !== null && sub.score !== undefined ? String(sub.score) : '')}
                           onChange={(e) => setInlineScores({ ...inlineScores, [sub.id]: e.target.value })}
-                          className="w-16 px-2 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs font-mono font-bold text-cyan-300 text-center focus:outline-none focus:border-cyan-400"
+                          className="w-16 min-h-9 px-2 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-sm sm:text-xs font-mono font-bold text-cyan-300 text-center focus:outline-none focus:border-cyan-400"
                         />
                         <span className="text-[10px] font-mono text-slate-500 pr-1">/100</span>
                         <button
                           type="button"
                           onClick={() => handleQuickSaveScore(sub.id, sub.score)}
                           disabled={savingScoreId === sub.id}
-                          className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold text-xs flex items-center gap-1 transition-all shadow-sm cursor-pointer"
+                          className="min-h-9 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold text-xs flex items-center justify-center gap-1 transition-all shadow-sm touch-manipulation cursor-pointer"
                           title="Save score out of 100 points instantly & recalculate standings"
                         >
                           {savingScoreId === sub.id ? (
@@ -1335,10 +1335,10 @@ export default function AdminPanel({
 
                       <button
                         onClick={() => handleOpenGrading(sub)}
-                        className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold text-xs border border-slate-700 transition-all cursor-pointer"
+                        className="min-h-10.5 flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold text-xs border border-slate-700 transition-all touch-manipulation cursor-pointer"
                         title="Open detailed rubric feedback modal"
                       >
-                        <Award className="w-3.5 h-3.5 text-cyan-400" />
+                        <Award className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
                         <span>Rubric</span>
                       </button>
                     </div>
@@ -1357,29 +1357,29 @@ export default function AdminPanel({
         <div className="space-y-4">
           
           {/* Controls Bar & Filters */}
-          <div className="flex flex-col gap-3 p-4 rounded-2xl bg-slate-900/90 border border-slate-800">
+          <div className="flex flex-col gap-3 p-3.5 sm:p-4 rounded-2xl bg-slate-900/90 border border-slate-800">
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
               <div className="relative flex-1 max-w-md">
-                <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
                 <input
                   type="text"
                   placeholder="Search by participant name, registration no, email, batch..."
                   value={searchParticipant}
                   onChange={(e) => setSearchParticipant(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                  className="w-full min-h-11 pl-10 pr-4 py-2 rounded-xl bg-slate-950 border border-slate-800 text-sm sm:text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
                 />
               </div>
 
-              <div className="flex items-center gap-2 flex-wrap justify-end">
+              <div className="flex items-center gap-2 flex-wrap justify-between sm:justify-end">
                 <button
                   onClick={() => {
                     setShowCreateParticipantModal(true);
                     generateRandomRegNo();
                     generateRandomPassword();
                   }}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-xs font-bold text-white transition-all shadow-md cursor-pointer"
+                  className="flex-1 sm:flex-initial min-h-10.5 flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-xs font-bold text-white transition-all shadow-md touch-manipulation cursor-pointer"
                 >
-                  <UserPlus className="w-3.5 h-3.5" />
+                  <UserPlus className="w-3.5 h-3.5 shrink-0" />
                   <span>Register Participant</span>
                 </button>
 
@@ -1387,7 +1387,7 @@ export default function AdminPanel({
                 <div className="flex items-center rounded-xl bg-slate-950 border border-slate-800 p-1">
                   <button
                     onClick={() => setParticipantViewMode('matrix')}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex items-center gap-1.5 min-h-9 px-3 py-1.5 rounded-lg text-xs font-bold transition-all touch-manipulation cursor-pointer ${
                       participantViewMode === 'matrix'
                         ? 'bg-cyan-600 text-white'
                         : 'text-slate-400 hover:text-white'
@@ -1398,7 +1398,7 @@ export default function AdminPanel({
                   </button>
                   <button
                     onClick={() => setParticipantViewMode('table')}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex items-center gap-1.5 min-h-9 px-3 py-1.5 rounded-lg text-xs font-bold transition-all touch-manipulation cursor-pointer ${
                       participantViewMode === 'table'
                         ? 'bg-cyan-600 text-white'
                         : 'text-slate-400 hover:text-white'
@@ -1413,12 +1413,12 @@ export default function AdminPanel({
 
             {/* Quick Filter Badges Row */}
             <div className="flex items-center gap-2 flex-wrap pt-2 border-t border-slate-800/80 text-xs">
-              <span className="text-[11px] text-slate-400 font-semibold">Filter By:</span>
+              <span className="text-[11px] text-slate-400 font-semibold shrink-0">Filter By:</span>
               
               <select
                 value={filterDept}
                 onChange={(e) => setFilterDept(e.target.value)}
-                className="px-2.5 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-cyan-400"
+                className="flex-1 sm:flex-initial min-h-10 px-2.5 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-sm sm:text-xs text-slate-300 focus:outline-none focus:border-cyan-400"
               >
                 <option value="all">All Departments ({participants.length})</option>
                 {uniqueDepartments.map((dept) => (
@@ -1429,7 +1429,7 @@ export default function AdminPanel({
               <select
                 value={filterVerification}
                 onChange={(e) => setFilterVerification(e.target.value as 'all' | 'verified' | 'unverified')}
-                className="px-2.5 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-cyan-400"
+                className="flex-1 sm:flex-initial min-h-10 px-2.5 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-sm sm:text-xs text-slate-300 focus:outline-none focus:border-cyan-400"
               >
                 <option value="all">All Verification States</option>
                 <option value="verified">Verified Only ({participants.filter(p => p.is_verified).length})</option>
@@ -1439,7 +1439,7 @@ export default function AdminPanel({
               <select
                 value={filterRole}
                 onChange={(e) => setFilterRole(e.target.value as 'all' | 'participant' | 'judge' | 'admin')}
-                className="px-2.5 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-cyan-400"
+                className="flex-1 sm:flex-initial min-h-10 px-2.5 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-sm sm:text-xs text-slate-300 focus:outline-none focus:border-cyan-400"
               >
                 <option value="all">All Roles</option>
                 <option value="participant">Competitors ({participants.filter(p => p.role === 'participant').length})</option>
@@ -1450,14 +1450,14 @@ export default function AdminPanel({
               <select
                 value={filterAccountStatus}
                 onChange={(e) => setFilterAccountStatus(e.target.value as 'all' | 'active' | 'suspended')}
-                className="px-2.5 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-cyan-400"
+                className="flex-1 sm:flex-initial min-h-10 px-2.5 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-sm sm:text-xs text-slate-300 focus:outline-none focus:border-cyan-400"
               >
                 <option value="all">All Account Statuses</option>
                 <option value="active">Active Only ({participants.filter(p => (p.account_status || 'active') === 'active').length})</option>
                 <option value="suspended">Suspended Only ({participants.filter(p => p.account_status === 'suspended').length})</option>
               </select>
 
-              <span className="text-[11px] text-slate-500 ml-auto font-mono">
+              <span className="text-[11px] text-slate-500 w-full sm:w-auto sm:ml-auto text-right font-mono">
                 Showing {filteredParticipants.length} of {participants.length}
               </span>
             </div>
@@ -1698,152 +1698,158 @@ export default function AdminPanel({
             </div>
           ) : (
             /* Traditional Table View */
-            <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/60 shadow-xl">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-950/90 text-slate-400 uppercase tracking-wider text-[10px] border-b border-slate-800">
-                  <tr>
-                    <th className="p-3.5">Registration No</th>
-                    <th className="p-3.5">Participant</th>
-                    <th className="p-3.5">Department & Batch</th>
-                    <th className="p-3.5">Verification</th>
-                    <th className="p-3.5">Account Status</th>
-                    <th className="p-3.5 text-center">Progress</th>
-                    <th className="p-3.5 text-center">Score</th>
-                    <th className="p-3.5 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/60">
-                  {filteredParticipants.map((p) => {
-                    const userSubs = submissionsByUserAndTask[p.id] || {};
-                    const completedCount = Object.values(userSubs).filter((s) => s.status === 'submitted' || s.status === 'evaluated').length;
-                    const totalScore = Object.values(userSubs).reduce((acc, s) => acc + (Number(s.score) || 0), 0);
-                    const isVerified = Boolean(p.is_verified);
-                    const isSuspended = p.account_status === 'suspended';
+            <div className="space-y-2">
+              <div className="sm:hidden flex items-center justify-between px-3 py-1.5 rounded-xl bg-slate-900/60 border border-slate-800 text-[11px] text-slate-400">
+                <span>Swipe table horizontally to inspect all columns</span>
+                <span className="font-mono text-cyan-400">← Swipe →</span>
+              </div>
+              <div className="responsive-table-wrapper rounded-2xl border border-slate-800 bg-slate-900/60 shadow-xl">
+                <table className="w-full text-left text-xs min-w-190">
+                  <thead className="bg-slate-950/90 text-slate-400 uppercase tracking-wider text-[10px] border-b border-slate-800">
+                    <tr>
+                      <th className="p-3.5">Registration No</th>
+                      <th className="p-3.5">Participant</th>
+                      <th className="p-3.5">Department & Batch</th>
+                      <th className="p-3.5">Verification</th>
+                      <th className="p-3.5">Account Status</th>
+                      <th className="p-3.5 text-center">Progress</th>
+                      <th className="p-3.5 text-center">Score</th>
+                      <th className="p-3.5 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/60">
+                    {filteredParticipants.map((p) => {
+                      const userSubs = submissionsByUserAndTask[p.id] || {};
+                      const completedCount = Object.values(userSubs).filter((s) => s.status === 'submitted' || s.status === 'evaluated').length;
+                      const totalScore = Object.values(userSubs).reduce((acc, s) => acc + (Number(s.score) || 0), 0);
+                      const isVerified = Boolean(p.is_verified);
+                      const isSuspended = p.account_status === 'suspended';
 
-                    return (
-                      <tr key={p.id} className="hover:bg-slate-800/40 transition-colors">
-                        <td className="p-3.5 font-mono text-cyan-300 font-bold whitespace-nowrap">
-                          {p.registration_number || 'REG-PENDING'}
-                        </td>
-                        <td className="p-3.5 whitespace-nowrap">
-                          <div className="flex items-center gap-2.5">
-                            <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs text-white shrink-0 ${
-                              p.role === 'admin'
-                                ? 'bg-purple-600'
-                                : p.role === 'judge'
-                                ? 'bg-amber-600'
-                                : 'bg-blue-600'
-                            }`}>
-                              {(p.full_name || p.email || 'U').charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                              <div className="font-bold text-white flex items-center gap-1.5">
-                                <span>{p.full_name || 'Individual Competitor'}</span>
-                                <span className={`px-1.5 py-0.2 rounded text-[9px] font-semibold uppercase ${
-                                  p.role === 'admin' ? 'bg-purple-950 text-purple-300 border border-purple-800' :
-                                  p.role === 'judge' ? 'bg-amber-950 text-amber-300 border border-amber-800' :
-                                  'bg-slate-800 text-slate-400'
-                                }`}>
-                                  {p.role}
-                                </span>
+                      return (
+                        <tr key={p.id} className="hover:bg-slate-800/40 transition-colors">
+                          <td className="p-3.5 font-mono text-cyan-300 font-bold whitespace-nowrap">
+                            {p.registration_number || 'REG-PENDING'}
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap">
+                            <div className="flex items-center gap-2.5">
+                              <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs text-white shrink-0 ${
+                                p.role === 'admin'
+                                  ? 'bg-purple-600'
+                                  : p.role === 'judge'
+                                  ? 'bg-amber-600'
+                                  : 'bg-blue-600'
+                              }`}>
+                                {(p.full_name || p.email || 'U').charAt(0).toUpperCase()}
                               </div>
-                              <span className="text-[11px] text-slate-400 font-mono block">{p.email}</span>
+                              <div>
+                                <div className="font-bold text-white flex items-center gap-1.5">
+                                  <span>{p.full_name || 'Individual Competitor'}</span>
+                                  <span className={`px-1.5 py-0.2 rounded text-[9px] font-semibold uppercase ${
+                                    p.role === 'admin' ? 'bg-purple-950 text-purple-300 border border-purple-800' :
+                                    p.role === 'judge' ? 'bg-amber-950 text-amber-300 border border-amber-800' :
+                                    'bg-slate-800 text-slate-400'
+                                  }`}>
+                                    {p.role}
+                                  </span>
+                                </div>
+                                <span className="text-[11px] text-slate-400 font-mono block">{p.email}</span>
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="p-3.5 text-slate-300 whitespace-nowrap">
-                          <div className="font-medium text-slate-200">{p.department || 'General Engineering'}</div>
-                          <div className="text-[11px] text-slate-400">Batch {p.batch || '2024'}</div>
-                        </td>
-                        <td className="p-3.5 whitespace-nowrap">
-                          {isVerified ? (
-                            <button
-                              onClick={() => handleToggleVerify(p)}
-                              title="Click to toggle unverified"
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 transition-all cursor-pointer"
-                            >
-                              <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                              <span>Verified</span>
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => handleToggleVerify(p)}
-                              title="Click to verify participant immediately"
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/15 border border-amber-500/30 text-amber-300 hover:bg-amber-500/25 transition-all cursor-pointer"
-                            >
-                              <ShieldAlert className="w-3 h-3 text-amber-400" />
-                              <span>Verify Now</span>
-                            </button>
-                          )}
-                        </td>
-                        <td className="p-3.5 whitespace-nowrap">
-                          {isSuspended ? (
-                            <button
-                              onClick={() => handleToggleAccountStatus(p, 'active')}
-                              title="Click to activate account"
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-500/20 border border-red-500/30 text-red-300 hover:bg-red-500/30 transition-all cursor-pointer"
-                            >
-                              <Ban className="w-3 h-3 text-red-400" />
-                              <span>Suspended</span>
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => handleToggleAccountStatus(p, 'suspended')}
-                              title="Click to suspend participant account"
-                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-950/60 border border-emerald-800/40 text-emerald-400 hover:bg-emerald-900/40 transition-all cursor-pointer"
-                            >
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                              <span>Active</span>
-                            </button>
-                          )}
-                        </td>
-                        <td className="p-3.5 text-center whitespace-nowrap">
-                          <span className="font-bold text-cyan-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800 font-mono">
-                            {completedCount} / {tasks.length}
-                          </span>
-                        </td>
-                        <td className="p-3.5 text-center whitespace-nowrap font-mono font-bold text-white">
-                          {totalScore} PTS
-                        </td>
-                        <td className="p-3.5 text-right whitespace-nowrap">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <button
-                              onClick={() => setInspectingParticipant(p)}
-                              title="Inspect Full Participant Details & Submissions"
-                              className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors cursor-pointer"
-                            >
-                              <Eye className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              onClick={() => handleToggleVerify(p)}
-                              title={isVerified ? 'Mark as Unverified' : 'Mark as Verified'}
-                              className={`p-1.5 rounded-lg bg-slate-800 transition-colors cursor-pointer ${
-                                isVerified ? 'text-emerald-400 hover:bg-emerald-950/40' : 'text-amber-400 hover:bg-amber-950/40'
-                              }`}
-                            >
-                              <ShieldCheck className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              onClick={() => handleOpenEditParticipant(p)}
-                              title="Edit Participant Details & Password"
-                              className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors cursor-pointer"
-                            >
-                              <Edit3 className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteParticipant(p.id, p.full_name)}
-                              title="Permanently Remove Participant"
-                              className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-red-400 hover:bg-red-950/40 transition-colors cursor-pointer"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                          </td>
+                          <td className="p-3.5 text-slate-300 whitespace-nowrap">
+                            <div className="font-medium text-slate-200">{p.department || 'General Engineering'}</div>
+                            <div className="text-[11px] text-slate-400">Batch {p.batch || '2024'}</div>
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap">
+                            {isVerified ? (
+                              <button
+                                onClick={() => handleToggleVerify(p)}
+                                title="Click to toggle unverified"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 transition-all touch-manipulation cursor-pointer"
+                              >
+                                <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                                <span>Verified</span>
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleToggleVerify(p)}
+                                title="Click to verify participant immediately"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/15 border border-amber-500/30 text-amber-300 hover:bg-amber-500/25 transition-all touch-manipulation cursor-pointer"
+                              >
+                                <ShieldAlert className="w-3 h-3 text-amber-400" />
+                                <span>Verify Now</span>
+                              </button>
+                            )}
+                          </td>
+                          <td className="p-3.5 whitespace-nowrap">
+                            {isSuspended ? (
+                              <button
+                                onClick={() => handleToggleAccountStatus(p, 'active')}
+                                title="Click to activate account"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-500/20 border border-red-500/30 text-red-300 hover:bg-red-500/30 transition-all touch-manipulation cursor-pointer"
+                              >
+                                <Ban className="w-3 h-3 text-red-400" />
+                                <span>Suspended</span>
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleToggleAccountStatus(p, 'suspended')}
+                                title="Click to suspend participant account"
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-950/60 border border-emerald-800/40 text-emerald-400 hover:bg-emerald-900/40 transition-all touch-manipulation cursor-pointer"
+                              >
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                                <span>Active</span>
+                              </button>
+                            )}
+                          </td>
+                          <td className="p-3.5 text-center whitespace-nowrap">
+                            <span className="font-bold text-cyan-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800 font-mono">
+                              {completedCount} / {tasks.length}
+                            </span>
+                          </td>
+                          <td className="p-3.5 text-center whitespace-nowrap font-mono font-bold text-white">
+                            {totalScore} PTS
+                          </td>
+                          <td className="p-3.5 text-right whitespace-nowrap">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                onClick={() => setInspectingParticipant(p)}
+                                title="Inspect Full Participant Details & Submissions"
+                                className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors touch-manipulation cursor-pointer"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={() => handleToggleVerify(p)}
+                                title={isVerified ? 'Mark as Unverified' : 'Mark as Verified'}
+                                className={`p-1.5 rounded-lg bg-slate-800 transition-colors touch-manipulation cursor-pointer ${
+                                  isVerified ? 'text-emerald-400 hover:bg-emerald-950/40' : 'text-amber-400 hover:bg-amber-950/40'
+                                }`}
+                              >
+                                <ShieldCheck className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={() => handleOpenEditParticipant(p)}
+                                title="Edit Participant Details & Password"
+                                className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors touch-manipulation cursor-pointer"
+                              >
+                                <Edit3 className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteParticipant(p.id, p.full_name)}
+                                title="Permanently Delete Participant"
+                                className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-red-400 hover:bg-red-950/40 transition-colors touch-manipulation cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </div>
@@ -1971,7 +1977,7 @@ export default function AdminPanel({
       {/* TAB 4: ADD CUSTOM TASK WITH MEDIA RESOURCES              */}
       {/* ======================================================== */}
       {activeTab === 'new-task' && (
-        <div className="max-w-3xl mx-auto rounded-3xl bg-slate-900/80 border border-slate-800 p-6 sm:p-8 backdrop-blur-xl">
+        <div className="max-w-3xl mx-auto rounded-2xl sm:rounded-3xl bg-slate-900/80 border border-slate-800 p-4 sm:p-8 backdrop-blur-xl">
           <div className="mb-6">
             <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
               Task Creator Studio
@@ -2307,7 +2313,7 @@ export default function AdminPanel({
       {/* ======================================================== */}
       {activeTab === 'projects' && (
         <div className="space-y-6">
-          <div className="max-w-3xl mx-auto rounded-3xl bg-slate-900/80 border border-slate-800 p-6 sm:p-8 backdrop-blur-xl">
+          <div className="max-w-3xl mx-auto rounded-2xl sm:rounded-3xl bg-slate-900/80 border border-slate-800 p-4 sm:p-8 backdrop-blur-xl">
             <div className="mb-6">
               <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-500/10 text-purple-400 border border-purple-500/30">
                 Showcase Studio
@@ -2431,11 +2437,11 @@ export default function AdminPanel({
       {/* MODAL 1: GRADING & REVIEW SUBMISSION (DIRECT EVALUATION) */}
       {/* ======================================================== */}
       {selectedSubmission && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-          <div className="relative w-full max-w-lg rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl overflow-hidden max-h-[92vh] flex flex-col">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in overflow-y-auto">
+          <div className="relative w-full max-w-lg rounded-2xl sm:rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl overflow-hidden max-h-[92vh] flex flex-col">
             
             {/* Header */}
-            <div className="p-5 border-b border-slate-800 flex items-center justify-between">
+            <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between">
               <div>
                 <span className="text-[10px] uppercase font-bold text-cyan-400 tracking-wider">
                   Jury Evaluation Deck
@@ -2446,14 +2452,15 @@ export default function AdminPanel({
               </div>
               <button
                 onClick={() => setSelectedSubmission(null)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer"
+                aria-label="Close grading modal"
+                className="w-9 h-9 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 flex items-center justify-center touch-manipulation cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Content Scrollable */}
-            <div className="p-5 overflow-y-auto space-y-4 text-xs">
+            <div className="p-4 sm:p-5 overflow-y-auto space-y-4 text-xs">
               
               {/* Participant info card */}
               <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
@@ -2479,7 +2486,7 @@ export default function AdminPanel({
                     href={selectedSubmission.github_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-3 rounded-xl bg-purple-950/60 hover:bg-purple-900/80 border border-purple-500/40 text-purple-200 hover:text-white transition-all shadow-md group"
+                    className="flex items-center justify-between p-3 rounded-xl bg-purple-950/60 hover:bg-purple-900/80 border border-purple-500/40 text-purple-200 hover:text-white transition-all shadow-md group touch-manipulation"
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <Github className="w-5 h-5 text-purple-300 shrink-0" />
@@ -2500,13 +2507,13 @@ export default function AdminPanel({
                     href={selectedSubmission.video_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-200 hover:text-white"
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-200 hover:text-white touch-manipulation"
                   >
-                    <div className="flex items-center gap-2">
-                      <Video className="w-4 h-4 text-rose-400" />
-                      <span>Live Demonstration Video: {selectedSubmission.video_url}</span>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Video className="w-4 h-4 text-rose-400 shrink-0" />
+                      <span className="truncate">Live Demonstration Video: {selectedSubmission.video_url}</span>
                     </div>
-                    <ExternalLink className="w-3.5 h-3.5" />
+                    <ExternalLink className="w-3.5 h-3.5 shrink-0" />
                   </a>
                 )}
 
@@ -2515,13 +2522,13 @@ export default function AdminPanel({
                     href={selectedSubmission.pptx_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-orange-950/40 border border-orange-800/60 text-orange-200 hover:text-white"
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-orange-950/40 border border-orange-800/60 text-orange-200 hover:text-white touch-manipulation"
                   >
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-orange-400" />
-                      <span>{selectedSubmission.pptx_file_name || 'Slide Deck Presentation'}</span>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <FileText className="w-4 h-4 text-orange-400 shrink-0" />
+                      <span className="truncate">{selectedSubmission.pptx_file_name || 'Slide Deck Presentation'}</span>
                     </div>
-                    <ExternalLink className="w-3.5 h-3.5" />
+                    <ExternalLink className="w-3.5 h-3.5 shrink-0" />
                   </a>
                 )}
 
@@ -2530,13 +2537,13 @@ export default function AdminPanel({
                     href={selectedSubmission.document_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-blue-950/40 border border-blue-800/60 text-blue-200 hover:text-white"
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-blue-950/40 border border-blue-800/60 text-blue-200 hover:text-white touch-manipulation"
                   >
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-blue-400" />
-                      <span>Architecture Document: {selectedSubmission.document_url}</span>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <FileText className="w-4 h-4 text-blue-400 shrink-0" />
+                      <span className="truncate">Architecture Document: {selectedSubmission.document_url}</span>
                     </div>
-                    <ExternalLink className="w-3.5 h-3.5" />
+                    <ExternalLink className="w-3.5 h-3.5 shrink-0" />
                   </a>
                 )}
 
@@ -2545,13 +2552,13 @@ export default function AdminPanel({
                     href={selectedSubmission.image_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-800/60 text-emerald-200 hover:text-white"
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-800/60 text-emerald-200 hover:text-white touch-manipulation"
                   >
-                    <div className="flex items-center gap-2">
-                      <ImageIcon className="w-4 h-4 text-emerald-400" />
-                      <span>Schematic / Diagram Image Proof</span>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <ImageIcon className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span className="truncate">Schematic / Diagram Image Proof</span>
                     </div>
-                    <ExternalLink className="w-3.5 h-3.5" />
+                    <ExternalLink className="w-3.5 h-3.5 shrink-0" />
                   </a>
                 )}
 
@@ -2565,7 +2572,7 @@ export default function AdminPanel({
 
               {/* Evaluation Form */}
               <form onSubmit={handleSaveEvaluation} className="space-y-3 pt-2 border-t border-slate-800">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[11px] font-semibold text-slate-300 mb-1">
                       Score (PTS) *
@@ -2578,7 +2585,7 @@ export default function AdminPanel({
                       placeholder={`0 - ${selectedSubmission.task?.points || 100}`}
                       value={evalScore}
                       onChange={(e) => setEvalScore(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-cyan-400 font-mono"
+                      className="w-full min-h-10.5 px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-sm sm:text-xs text-white focus:outline-none focus:border-cyan-400 font-mono"
                     />
                   </div>
 
@@ -2589,7 +2596,7 @@ export default function AdminPanel({
                     <select
                       value={evalStatus}
                       onChange={(e) => setEvalStatus(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-cyan-400"
+                      className="w-full min-h-10.5 px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-sm sm:text-xs text-white focus:outline-none focus:border-cyan-400"
                     >
                       <option value="evaluated">Evaluated / Scored</option>
                       <option value="under_review">Under Review</option>
@@ -2607,7 +2614,7 @@ export default function AdminPanel({
                     placeholder="Provide constructive feedback, rubric evaluation notes, or improvements for the competitor..."
                     value={evalFeedback}
                     onChange={(e) => setEvalFeedback(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                    className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-sm sm:text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"
                   />
                 </div>
 
@@ -2615,14 +2622,14 @@ export default function AdminPanel({
                   <button
                     type="button"
                     onClick={() => setSelectedSubmission(null)}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white cursor-pointer"
+                    className="min-h-10.5 px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white touch-manipulation cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={savingEvaluation}
-                    className="px-5 py-2.5 rounded-xl bg-linear-to-r from-blue-600 to-cyan-600 text-white font-bold text-xs shadow-md transition-all disabled:opacity-50 cursor-pointer"
+                    className="min-h-10.5 px-5 py-2.5 rounded-xl bg-linear-to-r from-blue-600 to-cyan-600 text-white font-bold text-xs shadow-md transition-all disabled:opacity-50 touch-manipulation cursor-pointer"
                   >
                     {savingEvaluation ? 'Saving...' : 'Save Evaluation'}
                   </button>
@@ -2638,8 +2645,8 @@ export default function AdminPanel({
       {/* MODAL 2: EDIT TASK & MEDIA RESOURCES MODAL               */}
       {/* ======================================================== */}
       {editingTask && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-          <div className="relative w-full max-w-2xl rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl p-6 max-h-[92vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in overflow-y-auto">
+          <div className="relative w-full max-w-2xl rounded-2xl sm:rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl p-4 sm:p-6 max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
               <div>
                 <span className="text-[10px] font-mono text-cyan-400 font-bold uppercase">Task #{editingTask.id}</span>
@@ -2647,7 +2654,8 @@ export default function AdminPanel({
               </div>
               <button
                 onClick={() => setEditingTask(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white cursor-pointer"
+                aria-label="Close edit task modal"
+                className="w-9 h-9 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 flex items-center justify-center touch-manipulation cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -2917,12 +2925,12 @@ export default function AdminPanel({
       {/* ======================================================== */}
       {inspectingParticipant && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in overflow-y-auto">
-          <div className="relative w-full max-w-3xl rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl p-5 sm:p-7 max-h-[90vh] flex flex-col overflow-hidden">
+          <div className="relative w-full max-w-3xl rounded-2xl sm:rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl p-4 sm:p-7 max-h-[90vh] flex flex-col overflow-hidden">
             
             {/* Header */}
             <div className="flex items-start justify-between gap-4 pb-4 border-b border-slate-800">
-              <div className="flex items-center gap-3">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-extrabold text-lg text-white shrink-0 shadow-lg ${
+              <div className="flex items-center gap-3 min-w-0">
+                <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center font-extrabold text-base sm:text-lg text-white shrink-0 shadow-lg ${
                   inspectingParticipant.role === 'admin'
                     ? 'bg-linear-to-br from-purple-600 to-indigo-700'
                     : inspectingParticipant.role === 'judge'
@@ -2931,9 +2939,9 @@ export default function AdminPanel({
                 }`}>
                   {(inspectingParticipant.full_name || inspectingParticipant.email || 'U').charAt(0).toUpperCase()}
                 </div>
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-lg font-bold text-white">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                    <h3 className="text-base sm:text-lg font-bold text-white truncate">
                       {inspectingParticipant.full_name || 'Individual Competitor'}
                     </h3>
                     <span className="font-mono text-cyan-300 bg-cyan-950/70 px-2 py-0.5 rounded border border-cyan-800/50 text-xs font-bold">
@@ -2950,23 +2958,24 @@ export default function AdminPanel({
                     </span>
                     {inspectingParticipant.is_verified ? (
                       <span className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 border border-emerald-500/40 text-emerald-300">
-                        <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                        <ShieldCheck className="w-3 h-3 text-emerald-400 shrink-0" />
                         <span>Verified Account</span>
                       </span>
                     ) : (
                       <span className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 border border-amber-500/40 text-amber-300">
-                        <ShieldAlert className="w-3 h-3 text-amber-400" />
+                        <ShieldAlert className="w-3 h-3 text-amber-400 shrink-0" />
                         <span>Unverified</span>
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-slate-400 font-mono mt-0.5">{inspectingParticipant.email}</div>
+                  <div className="text-xs text-slate-400 font-mono mt-0.5 truncate">{inspectingParticipant.email}</div>
                 </div>
               </div>
 
               <button
                 onClick={() => setInspectingParticipant(null)}
-                className="p-1.5 rounded-xl bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors cursor-pointer"
+                aria-label="Close participant dossier"
+                className="w-9 h-9 rounded-xl bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors flex items-center justify-center shrink-0 touch-manipulation cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -3260,16 +3269,16 @@ export default function AdminPanel({
             </div>
 
             {/* Bottom Modal Actions */}
-            <div className="pt-3 border-t border-slate-800 flex items-center justify-between gap-3">
+            <div className="pt-3 border-t border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
               <button
                 onClick={() => {
                   const toDelete = inspectingParticipant;
                   setInspectingParticipant(null);
                   handleDeleteParticipant(toDelete.id, toDelete.full_name);
                 }}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-red-400 hover:text-white hover:bg-red-950/50 border border-red-900/40 text-xs font-semibold transition-all cursor-pointer"
+                className="flex items-center justify-center gap-1.5 min-h-10 px-3.5 py-2 rounded-xl text-red-400 hover:text-white hover:bg-red-950/50 border border-red-900/40 text-xs font-semibold transition-all touch-manipulation cursor-pointer"
               >
-                <Trash2 className="w-3.5 h-3.5" />
+                <Trash2 className="w-3.5 h-3.5 shrink-0" />
                 <span>Delete Participant</span>
               </button>
 
@@ -3280,14 +3289,14 @@ export default function AdminPanel({
                     setInspectingParticipant(null);
                     handleOpenEditParticipant(toEdit);
                   }}
-                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition-colors cursor-pointer"
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 min-h-10 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition-colors touch-manipulation cursor-pointer"
                 >
-                  <Edit3 className="w-3.5 h-3.5" />
+                  <Edit3 className="w-3.5 h-3.5 shrink-0" />
                   <span>Edit Details & Password</span>
                 </button>
                 <button
                   onClick={() => setInspectingParticipant(null)}
-                  className="px-4 py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 hover:text-white text-xs font-semibold cursor-pointer"
+                  className="min-h-10 px-4 py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 hover:text-white text-xs font-semibold touch-manipulation cursor-pointer"
                 >
                   Close
                 </button>
@@ -3303,20 +3312,21 @@ export default function AdminPanel({
       {/* ======================================================== */}
       {showCreateParticipantModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in overflow-y-auto">
-          <div className="relative w-full max-w-lg rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl p-5 sm:p-6 max-h-[90vh] overflow-y-auto">
+          <div className="relative w-full max-w-lg rounded-2xl sm:rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-linear-to-br from-blue-600 to-cyan-600 flex items-center justify-center text-white">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-linear-to-br from-blue-600 to-cyan-600 flex items-center justify-center text-white shrink-0">
                   <UserPlus className="w-4 h-4" />
                 </div>
-                <div>
-                  <h3 className="text-base font-bold text-white">Register New Participant</h3>
-                  <p className="text-xs text-slate-400">Creates Supabase Auth credentials and public database profile.</p>
+                <div className="min-w-0">
+                  <h3 className="text-base font-bold text-white truncate">Register New Participant</h3>
+                  <p className="text-xs text-slate-400 truncate">Creates Supabase Auth credentials and public database profile.</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowCreateParticipantModal(false)}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer"
+                aria-label="Close registration modal"
+                className="w-9 h-9 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 flex items-center justify-center shrink-0 touch-manipulation cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -3516,20 +3526,21 @@ export default function AdminPanel({
       {/* ======================================================== */}
       {editingParticipant && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-fade-in overflow-y-auto">
-          <div className="relative w-full max-w-lg rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl p-5 sm:p-6 max-h-[90vh] overflow-y-auto">
+          <div className="relative w-full max-w-lg rounded-2xl sm:rounded-3xl bg-slate-900 border border-slate-700 shadow-2xl p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-cyan-400">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-cyan-400 shrink-0">
                   <Edit3 className="w-4 h-4" />
                 </div>
-                <div>
-                  <h3 className="text-base font-bold text-white">Edit Participant & Sync Account</h3>
-                  <p className="text-xs text-slate-400">Updates database profile and live Supabase Auth account status.</p>
+                <div className="min-w-0">
+                  <h3 className="text-base font-bold text-white truncate">Edit Participant & Sync Account</h3>
+                  <p className="text-xs text-slate-400 truncate">Updates database profile and live Supabase Auth account status.</p>
                 </div>
               </div>
               <button
                 onClick={() => setEditingParticipant(null)}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer"
+                aria-label="Close edit participant modal"
+                className="w-9 h-9 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 flex items-center justify-center shrink-0 touch-manipulation cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
