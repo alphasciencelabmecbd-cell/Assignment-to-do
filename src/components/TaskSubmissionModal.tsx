@@ -233,31 +233,31 @@ export default function TaskSubmissionModal({
   const isGithubAllowed = task.allowed_formats.includes('github');
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto animate-fade-in">
-      <div className="relative w-full max-w-3xl my-8 rounded-3xl bg-slate-900 border border-slate-700/80 shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md animate-fade-in overflow-hidden">
+      <div className="relative w-full max-w-3xl my-auto rounded-3xl bg-slate-900 border border-slate-700/80 shadow-2xl overflow-hidden max-h-[92vh] flex flex-col">
         
         {/* Top Gradient Header */}
-        <div className="h-2 bg-linear-to-r from-blue-500 via-cyan-400 to-indigo-500" />
+        <div className="h-1.5 bg-linear-to-r from-blue-500 via-cyan-400 to-indigo-500 shrink-0" />
 
         {/* Modal Header */}
-        <div className="p-6 sm:p-8 border-b border-slate-800">
-          <div className="flex items-start justify-between gap-4">
+        <div className="p-4 sm:p-6 border-b border-slate-800 shrink-0 bg-slate-900/90 backdrop-blur">
+          <div className="flex items-start justify-between gap-3">
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/20 text-cyan-400 border border-blue-500/30">
+              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-cyan-400 border border-blue-500/30">
                   TASK #{task.id}
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-800 text-slate-300">
                   {task.category}
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                   {task.points} Points
                 </span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-white">
+              <h2 className="text-lg sm:text-xl font-extrabold text-white">
                 {task.title}
               </h2>
-              <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+              <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed line-clamp-2">
                 {task.description}
               </p>
             </div>
@@ -289,7 +289,7 @@ export default function TaskSubmissionModal({
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 sm:p-8 space-y-6 max-h-[60vh] overflow-y-auto">
+        <div className="p-4 sm:p-6 space-y-5 overflow-y-auto flex-1">
           
           {errorMsg && (
             <div className="p-3.5 rounded-xl bg-red-950/60 border border-red-800/80 text-xs text-red-200 flex items-start gap-2.5">
@@ -539,7 +539,7 @@ export default function TaskSubmissionModal({
             {/* 4. Notes & Team Comments */}
             <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800">
               <label className="block text-xs font-bold text-white mb-1.5">
-                Technical Notes & Team Remarks
+                Technical Notes & Participant Remarks
               </label>
               <textarea
                 rows={3}

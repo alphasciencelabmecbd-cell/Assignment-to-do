@@ -20,20 +20,20 @@ export default function StatsBanner({
   totalPointsEarned,
   totalAvailablePoints,
 }: StatsBannerProps) {
-  const percentage = Math.round((completedCount / totalTasks) * 100);
+  const percentage = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
       
       {/* Progress & Completion Card */}
-      <div className="md:col-span-2 p-6 rounded-3xl glass-panel relative overflow-hidden flex flex-col justify-between">
+      <div className="sm:col-span-2 p-5 sm:p-6 rounded-3xl glass-panel relative overflow-hidden flex flex-col justify-between">
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-cyan-400" />
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
               Submission Progress
             </span>
-            <span className="text-sm font-extrabold text-white font-mono">
+            <span className="text-xs sm:text-sm font-extrabold text-white font-mono">
               {completedCount} / {totalTasks} Tasks
             </span>
           </div>
@@ -57,8 +57,8 @@ export default function StatsBanner({
         </div>
 
         <div className="relative z-10 mt-4 flex items-center justify-between text-[11px] text-slate-400">
-          <span>{totalTasks - completedCount} tasks remaining</span>
-          <span className="text-cyan-400 font-medium">Keep going for Grand Finale qualification</span>
+          <span>{Math.max(0, totalTasks - completedCount)} tasks remaining</span>
+          <span className="text-cyan-400 font-medium hidden sm:inline">Keep going for Grand Finale qualification</span>
         </div>
 
         {/* Ambient background glow */}
@@ -66,22 +66,22 @@ export default function StatsBanner({
       </div>
 
       {/* Points Card */}
-      <div className="p-6 rounded-3xl glass-panel relative overflow-hidden flex flex-col justify-between">
+      <div className="p-5 sm:p-6 rounded-3xl glass-panel relative overflow-hidden flex flex-col justify-between">
         <div>
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
-              <Trophy className="w-4 h-4 text-amber-400" />
+              <Trophy className="w-3.5 h-3.5 text-amber-400" />
               Total Points
             </span>
           </div>
           <div className="flex items-baseline gap-1.5 mb-1">
-            <span className="text-3xl font-black text-white font-mono">
+            <span className="text-2xl sm:text-3xl font-black text-white font-mono">
               {totalAvailablePoints}
             </span>
             <span className="text-xs text-slate-400 font-medium">PTS</span>
           </div>
           <p className="text-xs text-slate-400">
-            Across 10 distinct technical milestones
+            Across {totalTasks} technical milestones
           </p>
         </div>
 
@@ -91,30 +91,30 @@ export default function StatsBanner({
         </div>
       </div>
 
-      {/* Supabase Status Card */}
-      <div className="p-6 rounded-3xl glass-panel relative overflow-hidden flex flex-col justify-between">
+      {/* Backend & Cloud Sync Card */}
+      <div className="p-5 sm:p-6 rounded-3xl glass-panel relative overflow-hidden flex flex-col justify-between">
         <div>
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-              <Database className="w-4 h-4 text-emerald-400" />
-              Backend Sync
+              <Database className="w-3.5 h-3.5 text-emerald-400" />
+              Live Platform
             </span>
             <span className="flex h-2 w-2 relative">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
           </div>
-          <div className="text-base font-bold text-white mb-1">
-            Supabase Live
+          <div className="text-sm sm:text-base font-bold text-white mb-1">
+            Cloud Sync Active
           </div>
           <p className="text-xs text-slate-400">
-            PostgreSQL DB & Multi-format Cloud Storage
+            PostgreSQL DB & Multi-format Storage
           </p>
         </div>
 
         <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
-          <span className="text-slate-500">Database Engine</span>
-          <span className="text-cyan-400 font-mono">Postgres 17</span>
+          <span className="text-slate-500">Gmail Notifications</span>
+          <span className="text-cyan-400 font-mono">Enabled</span>
         </div>
       </div>
 

@@ -32,13 +32,13 @@ export default function SubmissionsView({
 }: SubmissionsViewProps) {
   if (!userProfile) {
     return (
-      <div className="text-center py-16 px-4 rounded-3xl glass-panel max-w-xl mx-auto my-12">
-        <div className="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-4 text-cyan-400">
-          <ShieldCheck className="w-8 h-8" />
+      <div className="text-center py-12 sm:py-16 px-4 rounded-3xl glass-panel max-w-xl mx-auto my-8 sm:my-12">
+        <div className="w-14 sm:w-16 h-14 sm:h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-4 text-cyan-400">
+          <ShieldCheck className="w-7 sm:w-8 h-7 sm:h-8" />
         </div>
-        <h3 className="text-xl font-bold text-white mb-2">Participant Authentication Required</h3>
-        <p className="text-xs text-slate-400 mb-6 max-w-sm mx-auto">
-          Please log into your team account to view your uploaded task deliverables, scores, and evaluation feedback.
+        <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Participant Sign In Required</h3>
+        <p className="text-xs text-slate-400 mb-6 max-w-sm mx-auto leading-relaxed">
+          Please sign in to your individual participant account to view your uploaded task deliverables, scores, and evaluation feedback.
         </p>
         <button
           onClick={onOpenAuth}
@@ -54,50 +54,60 @@ export default function SubmissionsView({
 
   if (submissionEntries.length === 0) {
     return (
-      <div className="text-center py-16 px-4 rounded-3xl glass-panel max-w-xl mx-auto my-12">
-        <div className="w-16 h-16 rounded-2xl bg-slate-800/80 border border-slate-700 flex items-center justify-center mx-auto mb-4 text-slate-400">
-          <FileCheck className="w-8 h-8" />
+      <div className="text-center py-12 sm:py-16 px-4 rounded-3xl glass-panel max-w-xl mx-auto my-8 sm:my-12">
+        <div className="w-14 sm:w-16 h-14 sm:h-16 rounded-2xl bg-slate-800/80 border border-slate-700 flex items-center justify-center mx-auto mb-4 text-slate-400">
+          <FileCheck className="w-7 sm:w-8 h-7 sm:h-8" />
         </div>
-        <h3 className="text-xl font-bold text-white mb-2">No Deliverables Submitted Yet</h3>
-        <p className="text-xs text-slate-400 mb-6 max-w-sm mx-auto">
-          You have not submitted deliverables for any of the 10 tasks yet. Select a task to upload your PPTX, demonstration video, or GitHub code repository.
+        <h3 className="text-lg sm:text-xl font-bold text-white mb-2">No Deliverables Submitted Yet</h3>
+        <p className="text-xs text-slate-400 mb-6 max-w-sm mx-auto leading-relaxed">
+          You have not submitted deliverables for any of the {tasks.length} tasks yet. Choose any task from the Tasks tab to upload your presentation deck, live demo video, or GitHub monorepo.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       
-      {/* Header with Team Details */}
-      <div className="p-6 rounded-3xl glass-panel flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      {/* Header with Individual Participant Details */}
+      <div className="p-5 sm:p-6 rounded-3xl glass-panel flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-cyan-400">
-              Team Deliverable Vault
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400">
+              Participant Deliverable Vault
             </span>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
               {submissionEntries.length} Tasks Recorded
             </span>
           </div>
-          <h2 className="text-xl font-extrabold text-white">
-            {userProfile.team_name || 'My Competition Team'}
+          <h2 className="text-lg sm:text-xl font-extrabold text-white">
+            {userProfile.full_name || 'Individual Competitor'}
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
-            {userProfile.institution || 'ASL Innovation Lab'} • Track: {userProfile.track || 'Engineering'}
-          </p>
+          <div className="flex items-center gap-2 text-xs text-slate-400 mt-1 flex-wrap">
+            {userProfile.registration_number && (
+              <span className="font-mono text-cyan-300 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800/40 text-[11px]">
+                {userProfile.registration_number}
+              </span>
+            )}
+            {userProfile.department && (
+              <span>&bull; {userProfile.department}</span>
+            )}
+            {userProfile.batch && (
+              <span>({userProfile.batch})</span>
+            )}
+          </div>
         </div>
 
         <button
           onClick={() => window.print()}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white border border-slate-700 transition-all"
+          className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white border border-slate-700 transition-all self-end sm:self-center"
         >
-          <Download className="w-4 h-4 text-cyan-400" />
-          <span>Export Submission Receipt</span>
+          <Download className="w-3.5 h-3.5 text-cyan-400" />
+          <span>Export Receipt</span>
         </button>
       </div>
 
-      {/* Submissions Table / Cards */}
+      {/* Submissions Cards */}
       <div className="grid grid-cols-1 gap-4">
         {tasks.map((task) => {
           const sub = submissions[task.id];
@@ -106,11 +116,11 @@ export default function SubmissionsView({
           return (
             <div 
               key={task.id}
-              className="p-6 rounded-3xl glass-panel border border-slate-800 hover:border-cyan-500/30 transition-all flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6"
+              className="p-5 sm:p-6 rounded-3xl glass-panel border border-slate-800 hover:border-cyan-500/30 transition-all flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 sm:gap-6"
             >
               {/* Task Details */}
               <div className="space-y-1.5 max-w-md">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-mono text-xs font-bold text-cyan-400 bg-blue-500/10 px-2 py-0.5 rounded-lg border border-blue-500/20">
                     TASK #{task.id}
                   </span>
@@ -127,54 +137,58 @@ export default function SubmissionsView({
                     {sub.status.toUpperCase()}
                   </span>
                 </div>
-                <h3 className="text-base font-bold text-white">
+                <h3 className="text-sm sm:text-base font-bold text-white">
                   {task.title}
                 </h3>
                 <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
                   <Calendar className="w-3.5 h-3.5" />
                   <span>Submitted on {new Date(sub.submitted_at || sub.updated_at).toLocaleString()}</span>
                 </div>
+
+                {sub.feedback && (
+                  <div className="text-[11px] text-purple-300 bg-purple-950/40 p-2.5 rounded-xl border border-purple-800/40 mt-2">
+                    <span className="font-bold text-purple-400 block mb-0.5">Evaluator Feedback:</span>
+                    {sub.feedback}
+                  </div>
+                )}
               </div>
 
               {/* Output Formats Attached */}
-              <div className="flex flex-wrap items-center gap-2.5">
-                {/* PPTX Deliverable */}
+              <div className="flex flex-wrap items-center gap-2">
                 {sub.pptx_url ? (
                   <a
                     href={sub.pptx_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold hover:bg-amber-500/20 transition-all"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold hover:bg-amber-500/20 transition-all"
                   >
-                    <FileText className="w-4 h-4 text-amber-400" />
-                    <span className="truncate max-w-32.5">{sub.pptx_file_name || 'Presentation Deck'}</span>
+                    <FileText className="w-3.5 h-3.5 text-amber-400" />
+                    <span className="truncate max-w-32.5">{sub.pptx_file_name || 'Slide Deck'}</span>
                     <ExternalLink className="w-3 h-3 text-amber-400/80" />
                   </a>
                 ) : null}
 
-                {/* Video Deliverable */}
                 {sub.video_url ? (
                   <a
                     href={sub.video_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-cyan-300 text-xs font-semibold hover:bg-blue-500/20 transition-all"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-cyan-300 text-xs font-semibold hover:bg-blue-500/20 transition-all"
                   >
-                    <Video className="w-4 h-4 text-cyan-400" />
+                    <Video className="w-3.5 h-3.5 text-cyan-400" />
                     <span className="truncate max-w-32.5">{sub.video_file_name || 'Demo Video'}</span>
                     <ExternalLink className="w-3 h-3 text-cyan-400/80" />
                   </a>
                 ) : null}
 
-                {/* GitHub Deliverable */}
                 {sub.github_url ? (
                   <a
                     href={sub.github_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold hover:bg-purple-500/20 transition-all"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-semibold hover:bg-purple-500/20 transition-all"
                   >
-                    <Github className="w-4 h-4 text-purple-400" />
+                    <Github className="w-3.5 h-3.5 text-purple-400" />
                     <span className="truncate max-w-32.5">{sub.github_url.replace('https://github.com/', '')}</span>
                     <ExternalLink className="w-3 h-3 text-purple-400/80" />
                   </a>
@@ -182,7 +196,7 @@ export default function SubmissionsView({
               </div>
 
               {/* Actions & Score */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5 w-full lg:w-auto justify-between lg:justify-end">
                 {sub.score !== null && sub.score !== undefined && (
                   <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-950/60 border border-purple-800 text-xs font-bold text-purple-300">
                     <Award className="w-4 h-4 text-purple-400" />
@@ -195,7 +209,7 @@ export default function SubmissionsView({
                   className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-300 bg-slate-800 hover:bg-slate-700 hover:text-white border border-slate-700 transition-all"
                 >
                   <Edit3 className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>Update Deliverables</span>
+                  <span>Update</span>
                 </button>
               </div>
 

@@ -27,7 +27,7 @@ export default function RulesRubricView() {
           Competition Rules, Formats & Evaluation Rubrics
         </h2>
         <p className="text-xs text-slate-400 mt-2 max-w-2xl leading-relaxed">
-          All participating teams must comply with the submission guidelines below. Deliverables are submitted across 10 structured milestone tasks with a cumulative total of 1,250 points.
+          All participating competitors must comply with the submission guidelines below. Deliverables are submitted across structured milestone tasks with evaluation from the jury panel.
         </p>
       </div>
 

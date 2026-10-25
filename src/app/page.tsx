@@ -1,16 +1,17 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
-import { Task, Submission, UserProfile } from '@/types';
+import { Task, Submission, UserProfile, NavigationTab } from '@/types';
 import Navbar from '@/components/Navbar';
 import StatsBanner from '@/components/StatsBanner';
 import TaskCard from '@/components/TaskCard';
-import TaskSubmissionModal from '@/components/TaskSubmissionModal';
 import AuthModal from '@/components/AuthModal';
 import SubmissionsView from '@/components/SubmissionsView';
 import LeaderboardView from '@/components/LeaderboardView';
 import RulesRubricView from '@/components/RulesRubricView';
+import AdminPanel from '@/components/AdminPanel';
 import Footer from '@/components/Footer';
 import { 
   BookOpen, 
@@ -18,136 +19,52 @@ import {
   Rocket,
   ShieldCheck,
   Video,
-  FileText
+  FileText,
+  PlusCircle,
+  Clock,
+  Sparkles
 } from 'lucide-react';
 import Github from '@/components/GithubIcon';
 
-const DEFAULT_TASKS: Task[] = [
-  {
-    id: 1,
-    title: 'Research Formulation & Literature Review',
-    short_title: 'Problem & Lit Review',
-    category: 'Ideation & Research',
-    description: 'Define the technical challenge, conduct a comprehensive literature review, specify target benchmarks, and formulate your engineering hypothesis.',
-    points: 100,
-    deadline: '2026-11-07T00:00:00Z',
-    allowed_formats: ['pptx', 'github', 'document'],
-    deliverables: ['Executive Abstract', 'Background & Related Works', 'Formulated Hypothesis', 'Initial Feasibility Study']
-  },
-  {
-    id: 2,
-    title: 'System Architecture & Engineering Schematics',
-    short_title: 'Architecture & Schematics',
-    category: 'Design & Architecture',
-    description: 'Develop end-to-end hardware-software system block diagrams, power distribution networks, circuit schematics, and pinout tables.',
-    points: 100,
-    deadline: '2026-11-14T00:00:00Z',
-    allowed_formats: ['pptx', 'github', 'document'],
-    deliverables: ['System Block Diagrams', 'Component BOM (Bill of Materials)', 'Circuit Schematics (KiCad/Eagle)', 'Interface Protocols']
-  },
-  {
-    id: 3,
-    title: '3D CAD Modeling & Structural Simulation',
-    short_title: 'CAD & Simulation',
-    category: 'Mechanical & Physical',
-    description: 'Design precision 3D CAD mechanical enclosures, structural chassis, aerodynamic/thermal simulations, and bill of materials.',
-    points: 100,
-    deadline: '2026-11-21T00:00:00Z',
-    allowed_formats: ['pptx', 'video', 'github'],
-    deliverables: ['STEP / STL CAD Files', 'Stress & Thermal FEA Report', 'Exploded Assembly View', 'Rendered Turntable']
-  },
-  {
-    id: 4,
-    title: 'Embedded Firmware & Core Algorithm Monorepo',
-    short_title: 'Firmware & Core Algorithms',
-    category: 'Software Development',
-    description: 'Establish the official GitHub repository with clean firmware code, driver libraries, algorithmic logic, unit tests, and continuous integration pipeline.',
-    points: 100,
-    deadline: '2026-11-28T00:00:00Z',
-    allowed_formats: ['github'],
-    deliverables: ['Clean GitHub Repository with README', 'Modular Source Code', 'Automated Unit Tests', 'Build & Flashing Guide']
-  },
-  {
-    id: 5,
-    title: 'Mid-Term Milestone Evaluation & Slide Deck',
-    short_title: 'Mid-Term Slide Deck',
-    category: 'Milestone Evaluation',
-    description: 'Present your 50% milestone progress, prototype status, test data, budget expenditure, and risk mitigation strategies in an executive PPTX presentation.',
-    points: 150,
-    deadline: '2026-12-05T00:00:00Z',
-    allowed_formats: ['pptx', 'video'],
-    deliverables: ['Professional PPTX Deck (15-20 Slides)', 'Milestone Verification Matrix', 'Risk Management & Timeline Plan']
-  },
-  {
-    id: 6,
-    title: 'Live Prototype Demonstration & Telemetry Video',
-    short_title: 'Prototype Demo Video',
-    category: 'Demonstration',
-    description: 'Produce a crisp 3 to 5-minute video demonstrating live hardware in the loop, sensor calibration, wireless telemetry, and real-time execution.',
-    points: 150,
-    deadline: '2026-12-12T00:00:00Z',
-    allowed_formats: ['video', 'github'],
-    deliverables: ['High-Resolution Demo Video (MP4/WebM)', 'Live Hardware Run', 'Sensor Telemetry Visualizer Link']
-  },
-  {
-    id: 7,
-    title: 'AI / ML Model Pipeline & Analytics Notebook',
-    short_title: 'AI/ML Data Pipeline',
-    category: 'Data Science & AI',
-    description: 'Deploy machine learning models or data processing algorithms. Include training logs, validation metrics, confusion matrices, and Jupyter/Colab notebooks.',
-    points: 100,
-    deadline: '2026-12-19T00:00:00Z',
-    allowed_formats: ['github', 'pptx'],
-    deliverables: ['Jupyter Notebook / Python Pipeline', 'Model Weights & Checkpoints', 'Accuracy / F1 Performance Metrics']
-  },
-  {
-    id: 8,
-    title: 'Field Testing, Reliability & FMEA Report',
-    short_title: 'Stress Testing & FMEA',
-    category: 'Validation & Quality',
-    description: 'Conduct stress testing, extreme environment verification, Failure Mode and Effects Analysis (FMEA), and reliability optimization.',
-    points: 100,
-    deadline: '2026-12-26T00:00:00Z',
-    allowed_formats: ['pptx', 'document', 'github'],
-    deliverables: ['FMEA Severity Matrix', 'Stress & Vibration Test Logs', 'Safety Protocol Verification']
-  },
-  {
-    id: 9,
-    title: 'Final Project Pitch Deck & Commercialization',
-    short_title: 'Final Pitch Deck',
-    category: 'Presentation & Business',
-    description: 'Craft an impactful executive slide deck detailing the final engineering solution, commercial viability, manufacturing cost analysis, and scalability.',
-    points: 150,
-    deadline: '2027-01-02T00:00:00Z',
-    allowed_formats: ['pptx', 'video'],
-    deliverables: ['Executive Master Pitch Deck (PPTX)', 'Unit Economics & BOM Scaling', 'Market & Application Impact']
-  },
-  {
-    id: 10,
-    title: 'Grand Finale: Monorepo & Final Video Showcase',
-    short_title: 'Grand Finale Showcase',
-    category: 'Grand Finale',
-    description: 'Submit your comprehensive GitHub monorepo documentation alongside your flagship 4K/HD video presentation for final jury evaluation and awards.',
-    points: 200,
-    deadline: '2027-01-09T00:00:00Z',
-    allowed_formats: ['video', 'pptx', 'github'],
-    deliverables: ['Complete GitHub Monorepo Tagged Release', 'Flagship 5-min 4K Video Showcase', 'Complete Archival Technical Manual']
-  }
-];
-
 export default function Home() {
-  const [currentTab, setCurrentTab] = useState<'overview' | 'tasks' | 'submissions' | 'leaderboard' | 'rules'>('overview');
-  const [tasks, setTasks] = useState<Task[]>(DEFAULT_TASKS);
+  const router = useRouter();
+  const [currentTab, setCurrentTab] = useState<NavigationTab>('overview');
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loadingTasks, setLoadingTasks] = useState(true);
   const [submissions, setSubmissions] = useState<Record<number, Submission>>({});
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   
   // Modals state
-  const [activeTaskForSubmission, setActiveTaskForSubmission] = useState<Task | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
   // Filters state
   const [filterCategory, setFilterCategory] = useState<string>('all');
-  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('uncompleted'); // default to uncompleted tasks for competitor focus
+
+  // Fetch dynamic tasks from database / API without predefined presets
+  const fetchTasks = useCallback(async () => {
+    try {
+      setLoadingTasks(true);
+      const res = await fetch('/api/admin/tasks');
+      const data = await res.json();
+      if (data.tasks) {
+        setTasks(data.tasks as Task[]);
+      } else {
+        const { data: directData, error: directErr } = await supabase
+          .from('tasks')
+          .select('*')
+          .order('id', { ascending: true });
+
+        if (!directErr && directData) {
+          setTasks(directData as Task[]);
+        }
+      }
+    } catch (err) {
+      console.warn('Dynamic task fetch error:', err);
+    } finally {
+      setLoadingTasks(false);
+    }
+  }, []);
 
   // Fetch submissions from Supabase
   const loadSubmissions = useCallback(async (userId: string) => {
@@ -169,19 +86,11 @@ export default function Home() {
     }
   }, []);
 
-  // Load user session and tasks from Supabase
+  // Load user session and dynamic tasks
   useEffect(() => {
     async function initSession() {
       try {
-        // Fetch tasks from Supabase
-        const { data: tasksData, error: tasksErr } = await supabase
-          .from('tasks')
-          .select('*')
-          .order('id', { ascending: true });
-
-        if (!tasksErr && tasksData && tasksData.length > 0) {
-          setTasks(tasksData as Task[]);
-        }
+        await fetchTasks();
 
         // Check active session
         const { data: { session } } = await supabase.auth.getSession();
@@ -192,18 +101,18 @@ export default function Home() {
             .eq('id', session.user.id)
             .single();
 
+          const isAdmin = profile?.role === 'admin' || session.user.user_metadata?.role === 'admin';
+
           const userProf: UserProfile = profile || {
             id: session.user.id,
             email: session.user.email || '',
-            full_name: session.user.user_metadata?.full_name || 'Participant',
-            team_name: session.user.user_metadata?.team_name || 'Alpha Team',
-            institution: session.user.user_metadata?.institution || 'ASL Academy',
-            track: session.user.user_metadata?.track || 'Engineering Track',
-            role: 'participant',
+            full_name: session.user.user_metadata?.full_name || (isAdmin ? 'ASL Competition Administrator' : 'Individual Competitor'),
+            department: session.user.user_metadata?.department || (isAdmin ? 'Alpha Science Lab Executive Board' : 'Engineering'),
+            batch: session.user.user_metadata?.batch || (isAdmin ? 'Faculty & Jury' : '2024'),
+            registration_number: session.user.user_metadata?.registration_number || (isAdmin ? 'ASL-ADMIN-CHAIR' : 'REG-ASL-001'),
+            role: isAdmin ? 'admin' : 'participant',
           };
           setUserProfile(userProf);
-
-          // Fetch submissions for this user
           loadSubmissions(session.user.id);
         }
       } catch (err) {
@@ -222,14 +131,16 @@ export default function Home() {
           .eq('id', session.user.id)
           .single();
 
+        const isAdmin = profile?.role === 'admin' || session.user.user_metadata?.role === 'admin';
+
         const userProf: UserProfile = profile || {
           id: session.user.id,
           email: session.user.email || '',
-          full_name: session.user.user_metadata?.full_name || 'Participant',
-          team_name: session.user.user_metadata?.team_name || 'Alpha Team',
-          institution: session.user.user_metadata?.institution || 'ASL Academy',
-          track: session.user.user_metadata?.track || 'Engineering Track',
-          role: 'participant',
+          full_name: session.user.user_metadata?.full_name || (isAdmin ? 'ASL Competition Administrator' : 'Individual Competitor'),
+          department: session.user.user_metadata?.department || (isAdmin ? 'Alpha Science Lab Executive Board' : 'Engineering'),
+          batch: session.user.user_metadata?.batch || (isAdmin ? 'Faculty & Jury' : '2024'),
+          registration_number: session.user.user_metadata?.registration_number || (isAdmin ? 'ASL-ADMIN-CHAIR' : 'REG-ASL-001'),
+          role: isAdmin ? 'admin' : 'participant',
         };
         setUserProfile(userProf);
         loadSubmissions(session.user.id);
@@ -242,34 +153,50 @@ export default function Home() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [loadSubmissions]);
+  }, [fetchTasks, loadSubmissions]);
+
+  // Route protection derived during render: Non-admin users cannot stay on admin tab
+  const activeTab: NavigationTab = currentTab === 'admin' && userProfile?.role !== 'admin' ? 'overview' : currentTab;
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setUserProfile(null);
     setSubmissions({});
+    setCurrentTab('overview');
   };
 
-  const handleSubmissionSaved = (saved: Submission) => {
-    setSubmissions((prev) => ({
-      ...prev,
-      [saved.task_id]: saved,
-    }));
+  // Secure login handler: automatically route admins to Admin Dashboard, participants to Task Dashboard
+  const handleAuthSuccess = (profile: UserProfile, isAdminCredential?: boolean) => {
+    setUserProfile(profile);
+    loadSubmissions(profile.id);
+
+    if (isAdminCredential || profile.role === 'admin') {
+      setCurrentTab('admin');
+    } else {
+      setCurrentTab('tasks');
+    }
   };
 
   const completedCount = Object.values(submissions).filter((s) => s.status === 'submitted' || s.status === 'evaluated').length;
   const totalAvailablePoints = tasks.reduce((acc, t) => acc + t.points, 0);
+  const totalPointsEarned = Object.values(submissions).reduce((acc, s) => acc + (Number(s.score) || 0), 0);
 
-  // Filter tasks
+  // Uncompleted tasks list
+  const uncompletedTasks = tasks.filter((t) => {
+    const sub = submissions[t.id];
+    return !sub || sub.status === 'draft';
+  });
+
+  // Filter tasks based on status and category
   const filteredTasks = tasks.filter((task) => {
     const sub = submissions[task.id];
     const matchesCategory = filterCategory === 'all' || task.category === filterCategory;
     
     let matchesStatus = true;
-    if (filterStatus === 'submitted') {
-      matchesStatus = sub?.status === 'submitted' || sub?.status === 'evaluated';
-    } else if (filterStatus === 'pending') {
+    if (filterStatus === 'uncompleted' || filterStatus === 'pending') {
       matchesStatus = !sub || sub.status === 'draft';
+    } else if (filterStatus === 'completed' || filterStatus === 'submitted') {
+      matchesStatus = sub?.status === 'submitted' || sub?.status === 'evaluated';
     }
 
     return matchesCategory && matchesStatus;
@@ -280,7 +207,7 @@ export default function Home() {
       
       {/* Navigation Header */}
       <Navbar
-        currentTab={currentTab}
+        currentTab={activeTab}
         setCurrentTab={setCurrentTab}
         userProfile={userProfile}
         onOpenAuth={() => setAuthModalOpen(true)}
@@ -289,79 +216,79 @@ export default function Home() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
         
         {/* TAB 1: OVERVIEW & HUB */}
-        {currentTab === 'overview' && (
-          <div className="space-y-10 animate-fade-in">
+        {activeTab === 'overview' && (
+          <div className="space-y-8 sm:space-y-10 animate-fade-in">
             
-            {/* Hero Section */}
-            <div className="relative rounded-3xl p-8 sm:p-12 glass-panel border border-slate-800/80 overflow-hidden">
+            {/* Clean Minimal Hero Section */}
+            <div className="relative rounded-3xl p-6 sm:p-10 lg:p-12 glass-panel border border-slate-800/80 overflow-hidden">
               
               {/* Background Glow Accents */}
-              <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute top-0 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute bottom-0 left-1/3 w-64 sm:w-80 h-64 sm:h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
               
               <div className="relative z-10 max-w-3xl">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold tracking-wide bg-linear-to-r from-blue-500/20 to-cyan-500/20 text-cyan-300 border border-blue-500/30 mb-6">
-                  <Rocket className="w-4 h-4 text-cyan-400" />
-                  <span>ALPHA SCIENCE LAB (ASL) NATIONAL COMPETITION</span>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold tracking-wide bg-linear-to-r from-blue-500/20 to-cyan-500/20 text-cyan-300 border border-blue-500/30 mb-4 sm:mb-6 flex-wrap">
+                  <Rocket className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                  <span>ALPHA SCIENCE LAB (ASL) NATIONAL ARENA</span>
                 </div>
 
-                <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+                <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
                   Multi-Stage Technical Innovation Arena
                 </h1>
 
-                <p className="mt-4 text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl">
-                  Welcome to the Alpha Science Lab competition hub. Complete and submit deliverables for <strong className="text-white">up to ten distinct technical tasks</strong> spanning literature research, CAD modeling, embedded firmware, prototype video demonstrations, and executive pitch decks.
+                <p className="mt-3 sm:mt-4 text-xs sm:text-base text-slate-300 leading-relaxed max-w-2xl">
+                  Welcome to the Alpha Science Lab competition hub. Complete and submit technical milestones powered by a dynamic database engine. Inspect embedded YouTube tutorials, schematics, and presentation decks, then submit your GitHub monorepo.
                 </p>
 
                 {/* Call to Actions */}
-                <div className="mt-8 flex flex-wrap items-center gap-4">
+                <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                   <button
                     onClick={() => setCurrentTab('tasks')}
-                    className="flex items-center gap-2.5 px-6 py-3.5 rounded-2xl text-xs font-bold text-white bg-linear-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-xl shadow-blue-600/30 transition-all group"
+                    className="flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl text-xs font-bold text-white bg-linear-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-xl shadow-blue-600/30 transition-all group cursor-pointer"
                   >
-                    <span>Explore 10 Tasks & Submit</span>
+                    <span>View {tasks.length} Active Challenges</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </button>
 
                   {!userProfile && (
                     <button
                       onClick={() => setAuthModalOpen(true)}
-                      className="flex items-center gap-2 px-5 py-3.5 rounded-2xl text-xs font-bold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700 transition-all"
+                      className="flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl text-xs font-bold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-700 transition-all cursor-pointer"
                     >
                       <ShieldCheck className="w-4 h-4 text-cyan-400" />
-                      <span>Register or Sign In</span>
+                      <span>Individual Register / Login</span>
                     </button>
                   )}
 
                   <button
                     onClick={() => setCurrentTab('rules')}
-                    className="flex items-center gap-2 px-5 py-3.5 rounded-2xl text-xs font-bold text-slate-300 hover:text-white transition-all"
+                    className="flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl text-xs font-bold text-slate-300 hover:text-white bg-slate-900/60 hover:bg-slate-800 border border-slate-800 transition-all cursor-pointer"
                   >
                     <BookOpen className="w-4 h-4 text-slate-400" />
-                    <span>View Submission Rubric</span>
+                    <span>View Rubric & Rules</span>
                   </button>
                 </div>
               </div>
 
               {/* Supported Formats Pill Strip */}
-              <div className="mt-10 pt-6 border-t border-slate-800/80 flex flex-wrap items-center gap-6 text-xs text-slate-400">
+              <div className="mt-8 sm:mt-10 pt-5 sm:pt-6 border-t border-slate-800/80 flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-slate-400">
                 <span className="font-bold text-slate-500 uppercase tracking-wider text-[10px]">
                   Accepted Output Formats:
                 </span>
-                <div className="flex items-center gap-2 text-slate-300 font-medium">
-                  <Video className="w-4 h-4 text-cyan-400" />
-                  <span>MP4 / YouTube / Vimeo Demonstration Videos</span>
+                <div className="flex items-center gap-2 text-slate-300 font-medium text-xs">
+                  <Github className="w-3.5 h-3.5 text-purple-400" />
+                  <span>GitHub Monorepo</span>
                 </div>
-                <div className="flex items-center gap-2 text-slate-300 font-medium">
-                  <FileText className="w-4 h-4 text-amber-400" />
-                  <span>PowerPoint (.PPTX) & PDF Slide Decks</span>
+                <div className="flex items-center gap-2 text-slate-300 font-medium text-xs">
+                  <Video className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Video Demonstrations</span>
                 </div>
-                <div className="flex items-center gap-2 text-slate-300 font-medium">
-                  <Github className="w-4 h-4 text-purple-400" />
-                  <span>GitHub Monorepo & Branch Tags</span>
+                <div className="flex items-center gap-2 text-slate-300 font-medium text-xs">
+                  <FileText className="w-3.5 h-3.5 text-amber-400" />
+                  <span>PPTX & PDF Decks</span>
                 </div>
               </div>
             </div>
@@ -370,78 +297,104 @@ export default function Home() {
             <StatsBanner
               completedCount={completedCount}
               totalTasks={tasks.length}
-              totalPointsEarned={0}
+              totalPointsEarned={totalPointsEarned}
               totalAvailablePoints={totalAvailablePoints}
             />
 
-            {/* Quick Task Shortcuts Grid */}
+            {/* Uncompleted Tasks Priority Section */}
             <div>
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
                 <div>
-                  <h2 className="text-xl font-extrabold text-white">
-                    Competition Milestones
-                  </h2>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    10 structured phases to take your project from literature review to grand finale showcase
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase font-mono">
+                      Action Required
+                    </span>
+                    <h2 className="text-lg sm:text-xl font-extrabold text-white">
+                      Uncompleted Challenges ({uncompletedTasks.length})
+                    </h2>
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    Small minimal cards for uncompleted tasks. Click any card to navigate directly to its dedicated detail page and submit.
                   </p>
                 </div>
+                
                 <button
                   onClick={() => setCurrentTab('tasks')}
-                  className="text-xs font-bold text-cyan-400 hover:text-cyan-300 flex items-center gap-1.5"
+                  className="text-xs font-bold text-cyan-400 hover:text-cyan-300 flex items-center gap-1.5 self-end sm:self-auto cursor-pointer"
                 >
-                  <span>View All 10 Tasks</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <span>Explore All Tasks</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {tasks.slice(0, 3).map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    submission={submissions[task.id] || null}
-                    onOpenSubmission={(t) => {
-                      if (!userProfile) {
-                        setAuthModalOpen(true);
-                      } else {
-                        setActiveTaskForSubmission(t);
-                      }
-                    }}
-                  />
-                ))}
-              </div>
+              {loadingTasks ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-44 rounded-2xl bg-slate-900/60 border border-slate-800 animate-pulse p-4" />
+                  ))}
+                </div>
+              ) : uncompletedTasks.length === 0 && tasks.length > 0 ? (
+                <div className="p-8 rounded-3xl bg-emerald-950/20 border border-emerald-500/30 text-center space-y-2">
+                  <Sparkles className="w-8 h-8 text-emerald-400 mx-auto" />
+                  <h3 className="text-base font-bold text-white">All Tasks Completed!</h3>
+                  <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                    Outstanding achievement! You have submitted deliverables for all available competition challenges.
+                  </p>
+                </div>
+              ) : tasks.length === 0 ? (
+                <div className="p-8 rounded-3xl bg-slate-900/40 border border-slate-800 text-center space-y-2">
+                  <Clock className="w-8 h-8 text-slate-500 mx-auto" />
+                  <h3 className="text-base font-bold text-white">No Custom Tasks Published Yet</h3>
+                  <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                    Administrators can create and publish custom technical tasks anytime through the Admin Panel.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {uncompletedTasks.slice(0, 6).map((task) => (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      submission={submissions[task.id] || null}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
           </div>
         )}
 
-        {/* TAB 2: ALL 10 COMPETITION TASKS */}
-        {currentTab === 'tasks' && (
+        {/* TAB 2: ALL COMPETITION TASKS (Participant Task Dashboard) */}
+        {activeTab === 'tasks' && (
           <div className="space-y-6 animate-fade-in">
             
             {/* Header & Filter Bar */}
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-6 rounded-3xl glass-panel">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-5 sm:p-6 rounded-3xl glass-panel">
               <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-mono text-xs font-bold text-cyan-400">10 DISTINCT CHALLENGE TASKS</span>
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <span className="font-mono text-xs font-bold text-cyan-400">{tasks.length} DYNAMIC CHALLENGES</span>
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-cyan-300 border border-blue-500/20">
                     Total: {totalAvailablePoints} PTS
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                    Completed: {completedCount}
                   </span>
                 </div>
                 <h2 className="text-xl sm:text-2xl font-black text-white">
                   Technical Submission Center
                 </h2>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Click any task to submit videos, presentation slide decks (PPTX), or GitHub repositories.
+                  Select any task card to open its dedicated detail page with embedded resource players and designated submission area.
                 </p>
               </div>
 
               {/* Status and Category Filters */}
-              <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+              <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
                 <select
                   value={filterCategory}
                   onChange={(e) => setFilterCategory(e.target.value)}
-                  className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-200 focus:outline-none focus:border-cyan-400"
+                  className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-200 focus:outline-none focus:border-cyan-400 flex-1 sm:flex-initial"
                 >
                   <option value="all">All Categories</option>
                   <option value="Ideation & Research">Ideation & Research</option>
@@ -454,63 +407,119 @@ export default function Home() {
                   <option value="Grand Finale">Grand Finale</option>
                 </select>
 
-                <select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-200 focus:outline-none focus:border-cyan-400"
-                >
-                  <option value="all">All Statuses</option>
-                  <option value="submitted">Submitted Only</option>
-                  <option value="pending">Pending Submission</option>
-                </select>
+                <div className="flex items-center rounded-xl bg-slate-900 border border-slate-700 p-1 flex-1 sm:flex-initial">
+                  <button
+                    onClick={() => setFilterStatus('uncompleted')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      filterStatus === 'uncompleted'
+                        ? 'bg-cyan-600 text-white'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    Uncompleted ({uncompletedTasks.length})
+                  </button>
+                  <button
+                    onClick={() => setFilterStatus('all')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      filterStatus === 'all'
+                        ? 'bg-cyan-600 text-white'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    All ({tasks.length})
+                  </button>
+                  <button
+                    onClick={() => setFilterStatus('completed')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      filterStatus === 'completed'
+                        ? 'bg-cyan-600 text-white'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    Completed ({completedCount})
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Task Grid (All 10 Tasks) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filteredTasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  submission={submissions[task.id] || null}
-                  onOpenSubmission={(t) => {
-                    if (!userProfile) {
-                      setAuthModalOpen(true);
-                    } else {
-                      setActiveTaskForSubmission(t);
-                    }
-                  }}
-                />
-              ))}
-            </div>
+            {/* Task Grid */}
+            {loadingTasks ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="h-44 rounded-2xl bg-slate-900/60 border border-slate-800 animate-pulse p-4" />
+                ))}
+              </div>
+            ) : filteredTasks.length === 0 ? (
+              <div className="p-12 rounded-3xl bg-slate-900/40 border border-slate-800 text-center space-y-3">
+                <Clock className="w-10 h-10 text-slate-600 mx-auto" />
+                <h3 className="text-base font-bold text-white">No Challenges Found</h3>
+                <p className="text-xs text-slate-400 max-w-sm mx-auto">
+                  {tasks.length === 0 
+                    ? 'No tasks have been published in the database yet. Competition admins can create challenges anytime.'
+                    : 'No tasks match your selected filter criteria. Try toggling status or category.'}
+                </p>
+                {userProfile?.role === 'admin' && (
+                  <button
+                    onClick={() => setCurrentTab('admin')}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition-all shadow-md cursor-pointer"
+                  >
+                    <PlusCircle className="w-4 h-4" />
+                    <span>Create Custom Task in Admin Panel</span>
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+                {filteredTasks.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    submission={submissions[task.id] || null}
+                  />
+                ))}
+              </div>
+            )}
 
           </div>
         )}
 
         {/* TAB 3: MY SUBMISSIONS */}
-        {currentTab === 'submissions' && (
+        {activeTab === 'submissions' && (
           <div className="animate-fade-in">
             <SubmissionsView
               tasks={tasks}
               submissions={submissions}
               userProfile={userProfile}
-              onEditTask={(t) => setActiveTaskForSubmission(t)}
+              onEditTask={(t) => {
+                router.push(`/tasks/${t.id}`);
+              }}
               onOpenAuth={() => setAuthModalOpen(true)}
             />
           </div>
         )}
 
         {/* TAB 4: LEADERBOARD */}
-        {currentTab === 'leaderboard' && (
+        {activeTab === 'leaderboard' && (
           <div className="animate-fade-in">
             <LeaderboardView />
           </div>
         )}
 
         {/* TAB 5: RULES & RUBRICS */}
-        {currentTab === 'rules' && (
+        {activeTab === 'rules' && (
           <div className="animate-fade-in">
             <RulesRubricView />
+          </div>
+        )}
+
+        {/* TAB 6: ADMIN PANEL (STRICTLY PROTECTED - VISIBLE ONLY TO AUTHENTICATED ADMIN) */}
+        {activeTab === 'admin' && userProfile?.role === 'admin' && (
+          <div className="animate-fade-in">
+            <AdminPanel
+              tasks={tasks}
+              onTasksUpdated={fetchTasks}
+              currentUser={userProfile}
+            />
           </div>
         )}
 
@@ -519,28 +528,11 @@ export default function Home() {
       {/* Footer */}
       <Footer />
 
-      {/* Task Submission Modal */}
-      {activeTaskForSubmission && (
-        <TaskSubmissionModal
-          key={activeTaskForSubmission.id}
-          task={activeTaskForSubmission}
-          submission={submissions[activeTaskForSubmission.id] || null}
-          userProfile={userProfile}
-          isOpen={!!activeTaskForSubmission}
-          onClose={() => setActiveTaskForSubmission(null)}
-          onSubmitted={handleSubmissionSaved}
-          onOpenAuth={() => setAuthModalOpen(true)}
-        />
-      )}
-
       {/* Authentication Modal */}
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
-        onAuthSuccess={(profile) => {
-          setUserProfile(profile);
-          loadSubmissions(profile.id);
-        }}
+        onAuthSuccess={handleAuthSuccess}
       />
 
     </div>

@@ -20,6 +20,7 @@ export default function Footer() {
                 width={40} 
                 height={26} 
                 className="h-7 w-auto object-contain" 
+                loading="eager"
               />
             </div>
             <div>
