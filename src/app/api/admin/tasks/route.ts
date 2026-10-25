@@ -9,6 +9,7 @@ export async function GET() {
       .order('id', { ascending: true });
 
     if (error) {
+      console.error('[Admin Tasks GET Error]:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
@@ -41,6 +42,7 @@ export async function GET() {
 
     return NextResponse.json({ tasks: tasksWithStats });
   } catch (error) {
+    console.error('[Admin Tasks GET Exception]:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Error fetching tasks' },
       { status: 500 }
