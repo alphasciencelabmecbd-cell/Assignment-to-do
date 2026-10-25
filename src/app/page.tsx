@@ -167,7 +167,7 @@ export default function Home() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [fetchTasks, loadSubmissions]);
+  }, [fetchTasks, loadSubmissions, fetchSettings]);
 
   // Route protection derived during render: Non-admin users cannot stay on admin tab
   const activeTab: NavigationTab = currentTab === 'admin' && userProfile?.role !== 'admin' ? 'overview' : currentTab;

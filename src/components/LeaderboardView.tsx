@@ -7,11 +7,10 @@ import {
   Trophy, 
   Medal, 
   Flame, 
-  Search,
-  RefreshCw,
-  Users,
-  Award,
-  Sparkles
+  Search, 
+  RefreshCw, 
+  Users, 
+  Sparkles 
 } from 'lucide-react';
 
 interface LeaderboardViewProps {
@@ -30,27 +29,28 @@ export default function LeaderboardView({ totalTasksCount = 0 }: LeaderboardView
     topScore: 0,
   });
 
-  // Fetch real-time database standings
-  const fetchLiveLeaderboard = useCallback(async (isManualRefresh = false) => {
-    if (isManualRefresh) setIsRefreshing(true);
-    try {
-      const res = await fetch('/api/leaderboard', { cache: 'no-store' });
-      const data = await res.json();
-      if (data.leaderboard) {
-        setLeaderboardData(data.leaderboard as LeaderboardEntry[]);
-        if (data.stats) setStats(data.stats);
-      }
-    } catch (err) {
-      console.warn('Live leaderboard fetch notice:', err);
-    } finally {
-      setLoading(false);
-      if (isManualRefresh) setIsRefreshing(false);
-    }
-  }, []);
-
   // Initial fetch and Supabase Realtime subscription
   useEffect(() => {
-    fetchLiveLeaderboard();
+    let ignore = false;
+
+    async function loadData() {
+      try {
+        const res = await fetch('/api/leaderboard', { cache: 'no-store' });
+        const data = await res.json();
+        if (!ignore && data.leaderboard) {
+          setLeaderboardData(data.leaderboard as LeaderboardEntry[]);
+          if (data.stats) setStats(data.stats);
+        }
+      } catch (err) {
+        console.warn('Live leaderboard fetch notice:', err);
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadData();
 
     // Subscribe to live database updates on submissions and profiles
     const channel = supabase
@@ -59,22 +59,40 @@ export default function LeaderboardView({ totalTasksCount = 0 }: LeaderboardView
         'postgres_changes',
         { event: '*', schema: 'public', table: 'submissions' },
         () => {
-          fetchLiveLeaderboard();
+          loadData();
         }
       )
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'profiles' },
         () => {
-          fetchLiveLeaderboard();
+          loadData();
         }
       )
       .subscribe();
 
     return () => {
+      ignore = true;
       supabase.removeChannel(channel);
     };
-  }, [fetchLiveLeaderboard]);
+  }, []);
+
+  // Manual refresh handler
+  const handleManualRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      const res = await fetch('/api/leaderboard', { cache: 'no-store' });
+      const data = await res.json();
+      if (data.leaderboard) {
+        setLeaderboardData(data.leaderboard as LeaderboardEntry[]);
+        if (data.stats) setStats(data.stats);
+      }
+    } catch (err) {
+      console.warn('Live leaderboard manual refresh notice:', err);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, []);
 
   const departments = [
     'All',
@@ -165,7 +183,7 @@ export default function LeaderboardView({ totalTasksCount = 0 }: LeaderboardView
           </span>
         </div>
         <button
-          onClick={() => fetchLiveLeaderboard(true)}
+          onClick={handleManualRefresh}
           disabled={isRefreshing}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 hover:text-white transition-all cursor-pointer disabled:opacity-50"
         >

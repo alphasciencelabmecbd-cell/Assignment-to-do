@@ -67,7 +67,18 @@ export default function AdminPanel({
   const [adminDeadline, setAdminDeadline] = useState(
     masterDeadline ? new Date(masterDeadline).toISOString().slice(0, 16) : ''
   );
+  const [prevMasterDeadline, setPrevMasterDeadline] = useState(masterDeadline);
   const [savingDeadline, setSavingDeadline] = useState(false);
+
+  // Adjust state when prop changes without triggering cascading effect renders
+  if (masterDeadline !== prevMasterDeadline) {
+    setPrevMasterDeadline(masterDeadline);
+    try {
+      setAdminDeadline(masterDeadline ? new Date(masterDeadline).toISOString().slice(0, 16) : '');
+    } catch {
+      // ignore invalid date
+    }
+  }
 
   // Inline Point Management state
   const [inlineScores, setInlineScores] = useState<Record<string, string>>({});
@@ -361,17 +372,6 @@ export default function AdminPanel({
       setSavingEvaluation(false);
     }
   };
-
-  // Sync admin deadline input whenever masterDeadline prop changes
-  useEffect(() => {
-    if (masterDeadline) {
-      try {
-        setAdminDeadline(new Date(masterDeadline).toISOString().slice(0, 16));
-      } catch {
-        // ignore invalid date
-      }
-    }
-  }, [masterDeadline]);
 
   // Handle save Master Competition Deadline (Spec 5)
   const handleSaveMasterDeadline = async (e?: React.FormEvent) => {
