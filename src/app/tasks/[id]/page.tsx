@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
-import { Task, Submission, UserProfile } from '@/types';
+import { Task, Submission, UserProfile, AllowedFormat } from '@/types';
 import TaskResourcePlayers from '@/components/TaskResourcePlayers';
 import AnimatedCheckmark from '@/components/AnimatedCheckmark';
 import AuthModal from '@/components/AuthModal';
@@ -24,7 +24,9 @@ import {
   Video,
   FileText,
   FileCode,
-  Edit3
+  Edit3,
+  UploadCloud,
+  ImageIcon
 } from 'lucide-react';
 
 function TaskDetailContent() {
@@ -34,16 +36,19 @@ function TaskDetailContent() {
   const [task, setTask] = useState<Task | null>(null);
   const [submission, setSubmission] = useState<Submission | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [masterDeadline, setMasterDeadline] = useState<string>('2026-11-15T23:59:59.000Z');
   const [loading, setLoading] = useState(true);
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
-  // Submission Form State
+  // Dynamic Submission Form State
   const [githubUrl, setGithubUrl] = useState('');
   const [githubBranch, setGithubBranch] = useState('main');
   const [videoUrl, setVideoUrl] = useState('');
-  const [pptxUrl, setPptxUrl] = useState('');
+  const [documentUrl, setDocumentUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [editingMode, setEditingMode] = useState(false);
@@ -63,7 +68,8 @@ function TaskDetailContent() {
         setGithubUrl(subData.github_url || '');
         setGithubBranch(subData.github_branch || 'main');
         setVideoUrl(subData.video_url || '');
-        setPptxUrl(subData.pptx_url || '');
+        setDocumentUrl(subData.document_url || subData.pptx_url || '');
+        setImageUrl(subData.image_url || '');
         setNotes(subData.notes || '');
       }
     } catch (err) {
@@ -71,14 +77,25 @@ function TaskDetailContent() {
     }
   }, [taskId]);
 
-  // Load task and existing submission once per taskId
+  // Load task, master deadline, and existing submission
   useEffect(() => {
     let ignore = false;
 
     async function init() {
       setLoading(true);
       try {
-        // 1. Fetch task directly from Supabase
+        // 1. Fetch master settings
+        try {
+          const setRes = await fetch('/api/settings');
+          const setData = await setRes.json();
+          if (setData.settings?.master_deadline && !ignore) {
+            setMasterDeadline(setData.settings.master_deadline);
+          }
+        } catch {
+          // ignore fallback
+        }
+
+        // 2. Fetch task directly from Supabase
         const { data: taskData, error: taskErr } = await supabase
           .from('tasks')
           .select('*')
@@ -95,7 +112,7 @@ function TaskDetailContent() {
           if (found && !ignore) setTask(found);
         }
 
-        // 2. Fetch active session and user profile
+        // 3. Fetch active session and user profile
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user && !ignore) {
           const { data: profile } = await supabase
@@ -116,7 +133,7 @@ function TaskDetailContent() {
             };
             setUserProfile(prof);
 
-            // 3. Fetch submission for this task
+            // 4. Fetch submission for this task
             const { data: subData } = await supabase
               .from('submissions')
               .select('*')
@@ -129,13 +146,14 @@ function TaskDetailContent() {
               setGithubUrl(subData.github_url || '');
               setGithubBranch(subData.github_branch || 'main');
               setVideoUrl(subData.video_url || '');
-              setPptxUrl(subData.pptx_url || '');
+              setDocumentUrl(subData.document_url || subData.pptx_url || '');
+              setImageUrl(subData.image_url || '');
               setNotes(subData.notes || '');
             }
           }
         }
       } catch (err) {
-        console.error('Error loading task details:', err);
+        console.error('Task detail initialization error:', err);
       } finally {
         if (!ignore) {
           setLoading(false);
@@ -152,6 +170,49 @@ function TaskDetailContent() {
     };
   }, [taskId]);
 
+  // Image Upload handler
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!userProfile) {
+      setAuthModalOpen(true);
+      return;
+    }
+
+    setUploadingImage(true);
+    setErrorMsg(null);
+    try {
+      const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const filePath = `${userProfile.id}/task-${taskId}/${Date.now()}_${sanitizedName}`;
+
+      const { data, error } = await supabase.storage
+        .from('asl-submissions')
+        .upload(filePath, file, { cacheControl: '3600', upsert: true });
+
+      if (error) {
+        const localUrl = URL.createObjectURL(file);
+        setImageUrl(localUrl);
+      } else {
+        const { data: publicData } = supabase.storage
+          .from('asl-submissions')
+          .getPublicUrl(data.path);
+        setImageUrl(publicData.publicUrl);
+      }
+    } catch {
+      setErrorMsg('Error uploading image deliverable.');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  // Determine which submission formats are allowed for this task
+  const allowed = (task?.allowed_formats || ['github']) as AllowedFormat[];
+  const isGithubAllowed = allowed.includes('github');
+  const isVideoAllowed = allowed.includes('video');
+  const isDocumentAllowed = allowed.includes('document') || allowed.includes('pptx');
+  const isImageAllowed = allowed.includes('image');
+
   // Handle Submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -163,14 +224,22 @@ function TaskDetailContent() {
       return;
     }
 
-    if (!githubUrl.trim()) {
-      setErrorMsg('GitHub repository URL is required.');
-      return;
+    // Dynamic validation based on enabled formats
+    if (isGithubAllowed && githubUrl.trim()) {
+      if (!githubUrl.includes('github.com')) {
+        setErrorMsg('Please enter a valid GitHub repository URL (e.g. https://github.com/username/project).');
+        return;
+      }
     }
 
-    // Client-side format check
-    if (!githubUrl.includes('github.com')) {
-      setErrorMsg('Please enter a valid GitHub repository URL (e.g. https://github.com/username/project).');
+    const hasAnyDeliverable =
+      (isGithubAllowed && Boolean(githubUrl.trim())) ||
+      (isVideoAllowed && Boolean(videoUrl.trim())) ||
+      (isDocumentAllowed && Boolean(documentUrl.trim())) ||
+      (isImageAllowed && Boolean(imageUrl.trim()));
+
+    if (!hasAnyDeliverable) {
+      setErrorMsg('Please fill in at least one required deliverable field enabled for this challenge.');
       return;
     }
 
@@ -182,10 +251,12 @@ function TaskDetailContent() {
         body: JSON.stringify({
           task_id: taskId,
           user_id: userProfile.id,
-          github_url: githubUrl.trim(),
-          github_branch: githubBranch.trim() || 'main',
-          video_url: videoUrl.trim() || null,
-          pptx_url: pptxUrl.trim() || null,
+          github_url: isGithubAllowed && githubUrl.trim() ? githubUrl.trim() : null,
+          github_branch: isGithubAllowed && githubBranch.trim() ? githubBranch.trim() : 'main',
+          video_url: isVideoAllowed && videoUrl.trim() ? videoUrl.trim() : null,
+          document_url: isDocumentAllowed && documentUrl.trim() ? documentUrl.trim() : null,
+          pptx_url: isDocumentAllowed && documentUrl.trim() ? documentUrl.trim() : null,
+          image_url: isImageAllowed && imageUrl.trim() ? imageUrl.trim() : null,
           notes: notes.trim() || null,
           team_name: userProfile.full_name || userProfile.email,
           status: 'submitted',
@@ -199,7 +270,7 @@ function TaskDetailContent() {
 
       setSubmission(data.submission);
       setEditingMode(false);
-      setSuccessMsg('Task submitted and validated successfully!');
+      setSuccessMsg('Task submitted and validated successfully in the database!');
 
       // Trigger celebration confetti
       try {
@@ -219,34 +290,29 @@ function TaskDetailContent() {
     }
   };
 
-  const isCompleted = submission?.status === 'submitted' || submission?.status === 'evaluated';
+  const isSubmitted = submission?.status === 'submitted';
   const isEvaluated = submission?.status === 'evaluated';
+  const isCompleted = isSubmitted || isEvaluated;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#060913] text-slate-100 selection:bg-cyan-500 selection:text-black">
+    <div className="min-h-screen bg-[#060913] text-slate-100 flex flex-col selection:bg-cyan-500 selection:text-black">
       
-      {/* Top Header Bar */}
-      <header className="sticky top-0 z-40 bg-[#060913]/90 backdrop-blur-xl border-b border-slate-800/80 px-4 sm:px-8 py-3.5 flex items-center justify-between gap-4">
+      {/* Top Breadcrumb Navigation Bar */}
+      <header className="sticky top-0 z-40 w-full border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-xl px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link
             href="/"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-cyan-400 text-xs font-semibold text-slate-300 hover:text-white transition-all group"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-300 hover:text-white hover:border-slate-700 transition-all cursor-pointer"
           >
-            <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-            <span>Arena</span>
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Arena Dashboard</span>
           </Link>
-          <div className="h-4 w-px bg-slate-800" />
-          <span className="font-mono text-xs font-bold text-cyan-400">
-            TASK {task ? (task.id < 10 ? `0${task.id}` : task.id) : (!isNaN(taskId) ? (taskId < 10 ? `0${taskId}` : taskId) : '')}
+          <span className="text-slate-600 hidden sm:inline">&bull;</span>
+          <span className="text-xs text-slate-400 font-mono hidden sm:inline">
+            Challenge #{taskId}
           </span>
-          {task?.title && (
-            <span className="text-xs text-slate-400 hidden sm:inline truncate max-w-xs">
-              {task.title}
-            </span>
-          )}
         </div>
 
-        {/* User Pill / Login */}
         <div>
           {userProfile ? (
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs">
@@ -281,10 +347,6 @@ function TaskDetailContent() {
               <div className="h-4 w-full bg-slate-800/50 rounded" />
               <div className="h-4 w-5/6 bg-slate-800/50 rounded" />
             </div>
-            <div className="h-56 rounded-3xl bg-slate-900/30 border border-slate-800/60 p-6 space-y-4">
-              <div className="h-6 w-60 bg-slate-800 rounded-lg" />
-              <div className="h-12 w-full bg-slate-800/40 rounded-xl" />
-            </div>
           </div>
         ) : !task ? (
           <div className="p-12 rounded-3xl bg-slate-900/60 border border-slate-800 text-center flex flex-col items-center">
@@ -302,393 +364,434 @@ function TaskDetailContent() {
           </div>
         ) : (
           <>
-        
-        {/* TASK HERO & METADATA CARD */}
-        <div className="relative rounded-3xl p-6 sm:p-8 lg:p-10 glass-panel border border-slate-800/90 overflow-hidden">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+            {/* TASK HERO BANNER & UNIFIED MASTER DEADLINE */}
+            <div className="relative rounded-3xl p-6 sm:p-8 lg:p-10 glass-panel border border-slate-800/90 overflow-hidden shadow-2xl">
+              <div className="absolute top-0 right-0 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute bottom-0 left-1/4 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="relative z-10 space-y-4">
-            
-            {/* Badges strip */}
-            <div className="flex flex-wrap items-center gap-2.5">
-              <span className="px-3 py-1 rounded-full text-xs font-black bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 font-mono">
-                TASK #{task.id < 10 ? `0${task.id}` : task.id}
-              </span>
+              <div className="relative z-10 space-y-4">
+                {/* Top Badges */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="px-3 py-1 rounded-full text-xs font-black bg-blue-500/20 text-cyan-300 border border-blue-500/30 font-mono">
+                    CHALLENGE #{task.id < 10 ? `0${task.id}` : task.id}
+                  </span>
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700">
+                    {task.category}
+                  </span>
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono">
+                    {task.points} PTS MAX
+                  </span>
 
-              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700">
-                {task.category}
-              </span>
+                  {isCompleted ? (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>COMPLETED</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 font-mono">
+                      <Clock className="w-3.5 h-3.5 text-slate-500" />
+                      <span>PENDING SUBMISSION</span>
+                    </span>
+                  )}
+                </div>
 
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30 text-xs font-bold font-mono">
-                <Award className="w-3.5 h-3.5 text-amber-400" />
-                <span>{task.points} PTS</span>
+                {/* Task Title */}
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
+                  {task.title}
+                </h1>
+
+                {/* Unified Master Competition Deadline & Formats */}
+                <div className="pt-2 flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-slate-400 border-t border-slate-800/80">
+                  <div className="flex items-center gap-1.5 text-cyan-400">
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>Master Competition Deadline: <strong className="text-white font-mono">{new Date(masterDeadline).toLocaleString()}</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[11px] text-slate-500 font-semibold uppercase">Admin-Accepted Formats:</span>
+                    {allowed.map((fmt) => (
+                      <span key={fmt} className="px-2 py-0.5 rounded-md bg-slate-900 border border-slate-800 text-[11px] text-cyan-300 uppercase font-mono">
+                        {fmt === 'github' ? 'GitHub' : fmt === 'video' ? 'YouTube' : fmt === 'document' ? 'Doc/Drive' : fmt === 'image' ? 'Image' : fmt}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* PROBLEM STATEMENT & DETAILED DESCRIPTION */}
+            <div className="p-6 sm:p-8 rounded-3xl glass-panel border border-slate-800/90 space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 rounded-lg bg-blue-500/10 text-cyan-400 border border-blue-500/20">
+                  <FileCode className="w-4 h-4" />
+                </span>
+                <h2 className="text-base sm:text-lg font-bold text-white tracking-wide">
+                  Problem Statement & Engineering Challenge
+                </h2>
               </div>
 
-              {isCompleted ? (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 font-mono">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>COMPLETED</span>
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 font-mono">
-                  <Clock className="w-3.5 h-3.5 text-slate-500" />
-                  <span>PENDING SUBMISSION</span>
-                </span>
+              <div className="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-line font-normal">
+                {task.description}
+              </div>
+
+              {/* Key Deliverables Checklist */}
+              {task.deliverables && task.deliverables.length > 0 && (
+                <div className="mt-6 pt-5 border-t border-slate-800/80 space-y-3">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+                    Required Deliverables Checklist:
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {task.deliverables.map((deliv, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-950/60 border border-slate-800/70 text-xs text-slate-200"
+                      >
+                        <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
+                        <span>{deliv}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
 
-            {/* Task Title */}
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight">
-              {task.title}
-            </h1>
+            {/* EMBEDDED MEDIA RESOURCE PLAYERS */}
+            {((task.resources && task.resources.length > 0) || task.youtube_url) && (
+              <TaskResourcePlayers
+                taskTitle={task.title}
+                youtubeUrl={task.youtube_url}
+                resources={task.resources}
+              />
+            )}
 
-            {/* Sub-bar with deadline & formats */}
-            <div className="pt-2 flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-slate-400 border-t border-slate-800/80">
-              <div className="flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Deadline: <strong className="text-slate-200">{new Date(task.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</strong></span>
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[11px] text-slate-500 font-semibold uppercase">Accepted Formats:</span>
-                {(task.allowed_formats || ['github']).map((fmt) => (
-                  <span key={fmt} className="px-2 py-0.5 rounded-md bg-slate-900 border border-slate-800 text-[11px] text-cyan-300 uppercase font-mono">
-                    {fmt}
-                  </span>
-                ))}
-              </div>
-            </div>
+            {/* DESIGNATED SUBMISSION HUB (ADMIN-GATED INPUTS) */}
+            <div className="p-6 sm:p-8 rounded-3xl glass-panel border border-slate-800/90 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-2xl pointer-events-none" />
 
-          </div>
-        </div>
-
-        {/* PROBLEM STATEMENT & DETAILED DESCRIPTION */}
-        <div className="p-6 sm:p-8 rounded-3xl glass-panel border border-slate-800/90 space-y-4">
-          <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-blue-500/10 text-cyan-400 border border-blue-500/20">
-              <FileCode className="w-4 h-4" />
-            </span>
-            <h2 className="text-base sm:text-lg font-bold text-white tracking-wide">
-              Problem Statement & Engineering Challenge
-            </h2>
-          </div>
-
-          <div className="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-line font-normal">
-            {task.description}
-          </div>
-
-          {/* Key Deliverables Checklist */}
-          {task.deliverables && task.deliverables.length > 0 && (
-            <div className="mt-6 pt-5 border-t border-slate-800/80 space-y-3">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-                Required Deliverables Checklist:
-              </span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {task.deliverables.map((deliv, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-950/60 border border-slate-800/70 text-xs text-slate-200"
-                  >
-                    <span className="w-2 h-2 rounded-full bg-cyan-400 shrink-0" />
-                    <span>{deliv}</span>
+              {/* Completed State View with Animated Checkmark */}
+              {isCompleted && !editingMode ? (
+                <div className="space-y-6">
+                  
+                  <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+                    <AnimatedCheckmark size={68} />
+                    <div>
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 mb-1">
+                        <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>TASK DELIVERABLE RECORDED</span>
+                      </div>
+                      <h3 className="text-xl sm:text-2xl font-black text-white">
+                        Deliverable Submitted & Verified in Database
+                      </h3>
+                      <p className="text-xs text-slate-300 mt-1">
+                        Your submission has been safely recorded. You may inspect your verified links below.
+                      </p>
+                    </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
 
-        {/* ATTACHED MEDIA RESOURCES (YOUTUBE EMBED, PDF, PPTX, DIAGRAMS) */}
-        {(task.youtube_url || (task.resources && task.resources.length > 0)) && (
-          <div className="p-6 sm:p-8 rounded-3xl glass-panel border border-slate-800/90 space-y-5">
-            <TaskResourcePlayers
-              youtubeUrl={task.youtube_url}
-              resources={task.resources}
-              taskTitle={task.title}
-            />
-          </div>
-        )}
-
-        {/* DESIGNATED SUBMISSION INPUT AREA (HIGHLIGHTED) */}
-        <div className={`p-6 sm:p-8 rounded-3xl glass-panel transition-all relative overflow-hidden ${
-          isCompleted && !editingMode
-            ? 'border-2 border-emerald-500/40 bg-emerald-950/10'
-            : 'border-2 border-cyan-500/40 bg-slate-900/80 shadow-2xl shadow-cyan-500/10'
-        }`}>
-
-          {/* Glowing accent border */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-2xl pointer-events-none" />
-
-          {/* Completed State View with Animated Checkmark */}
-          {isCompleted && !editingMode ? (
-            <div className="space-y-6">
-              
-              {/* Animated Visual Checkmark header */}
-              <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-                <AnimatedCheckmark size={68} />
-                <div>
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 mb-1">
-                    <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>TASK DELIVERABLE COMPLETED</span>
-                  </div>
-                  <h3 className="text-xl sm:text-2xl font-black text-white">
-                    Deliverable Submitted & Verified in Supabase
-                  </h3>
-                  <p className="text-xs text-slate-300 mt-1">
-                    Your code repository has been safely recorded. You may inspect your live GitHub monorepo below.
-                  </p>
-                </div>
-              </div>
-
-              {/* Submitted Details Card */}
-              <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-800/90 space-y-3 text-xs">
-                {submission?.github_url && (
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl bg-slate-900/80 border border-slate-800">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <Github className="w-4 h-4 text-purple-400 shrink-0" />
-                      <div className="truncate">
-                        <span className="text-[10px] text-slate-500 block uppercase font-mono">GitHub Repository</span>
+                  {/* Submitted Details Card */}
+                  <div className="p-5 rounded-2xl bg-slate-950/80 border border-slate-800/90 space-y-3 text-xs">
+                    {submission?.github_url && (
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl bg-slate-900/80 border border-slate-800">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <Github className="w-4 h-4 text-purple-400 shrink-0" />
+                          <div className="truncate">
+                            <span className="text-[10px] text-slate-500 block uppercase font-mono">GitHub Repository</span>
+                            <a
+                              href={submission.github_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-mono text-cyan-400 hover:text-cyan-300 font-bold truncate block"
+                            >
+                              {submission.github_url}
+                            </a>
+                          </div>
+                        </div>
                         <a
                           href={submission.github_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-mono text-cyan-400 hover:text-cyan-300 font-bold truncate block"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-950/60 hover:bg-cyan-900 text-cyan-300 border border-cyan-500/30 text-xs font-bold shrink-0 self-start sm:self-auto transition-colors"
                         >
-                          {submission.github_url}
+                          <span>Open Repo</span>
+                          <ExternalLink className="w-3.5 h-3.5" />
                         </a>
                       </div>
-                    </div>
-                    <a
-                      href={submission.github_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-950/60 hover:bg-cyan-900 text-cyan-300 border border-cyan-500/30 text-xs font-bold shrink-0 self-start sm:self-auto transition-colors"
-                    >
-                      <span>Open Repo</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  </div>
-                )}
+                    )}
 
-                {submission?.video_url && (
-                  <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 text-xs">
-                    <div className="flex items-center gap-2 truncate">
-                      <Video className="w-4 h-4 text-cyan-400 shrink-0" />
-                      <span className="text-slate-300 truncate">Video Demo: {submission.video_url}</span>
-                    </div>
-                    <a href={submission.video_url} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline shrink-0">
-                      View Video
-                    </a>
-                  </div>
-                )}
-
-                {submission?.pptx_url && (
-                  <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 text-xs">
-                    <div className="flex items-center gap-2 truncate">
-                      <FileText className="w-4 h-4 text-amber-400 shrink-0" />
-                      <span className="text-slate-300 truncate">Slide Deck: {submission.pptx_url}</span>
-                    </div>
-                    <a href={submission.pptx_url} target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:underline shrink-0">
-                      View Deck
-                    </a>
-                  </div>
-                )}
-
-                {submission?.notes && (
-                  <div className="p-3 rounded-xl bg-slate-900/40 border border-slate-800 text-xs text-slate-300">
-                    <span className="text-[10px] text-slate-500 font-bold block uppercase mb-1">Notes / Abstract:</span>
-                    <p className="whitespace-pre-line">{submission.notes}</p>
-                  </div>
-                )}
-
-                {/* Score / Evaluation if available */}
-                {isEvaluated && (
-                  <div className="mt-4 p-4 rounded-xl bg-purple-950/40 border border-purple-500/40 text-xs text-purple-200 flex items-center justify-between gap-3">
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400 block">Jury Evaluation Result:</span>
-                      <div className="text-lg font-black text-white mt-0.5">
-                        {submission?.score} / {task.points} PTS
+                    {submission?.video_url && (
+                      <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 text-xs">
+                        <div className="flex items-center gap-2 truncate">
+                          <Video className="w-4 h-4 text-cyan-400 shrink-0" />
+                          <span className="text-slate-300 truncate">YouTube / Video: {submission.video_url}</span>
+                        </div>
+                        <a href={submission.video_url} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline shrink-0">
+                          Open Video
+                        </a>
                       </div>
-                      {submission?.feedback && (
-                        <p className="mt-1 text-slate-300 italic">&ldquo;{submission.feedback}&rdquo;</p>
-                      )}
-                    </div>
-                    <Award className="w-8 h-8 text-purple-400 shrink-0" />
+                    )}
+
+                    {(submission?.document_url || submission?.pptx_url) && (
+                      <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 text-xs">
+                        <div className="flex items-center gap-2 truncate">
+                          <FileText className="w-4 h-4 text-amber-400 shrink-0" />
+                          <span className="text-slate-300 truncate">Document / Drive: {submission.document_url || submission.pptx_url}</span>
+                        </div>
+                        <a href={submission.document_url || submission.pptx_url || '#'} target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:underline shrink-0">
+                          Open Link
+                        </a>
+                      </div>
+                    )}
+
+                    {submission?.image_url && (
+                      <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 text-xs">
+                        <div className="flex items-center gap-2 truncate">
+                          <ImageIcon className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span className="text-slate-300 truncate">Image Deliverable: {submission.image_url}</span>
+                        </div>
+                        <a href={submission.image_url} target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:underline shrink-0">
+                          View Image
+                        </a>
+                      </div>
+                    )}
+
+                    {submission?.notes && (
+                      <div className="p-3 rounded-xl bg-slate-900/40 border border-slate-800 text-xs text-slate-300">
+                        <span className="text-[10px] text-slate-500 font-bold block uppercase mb-1">Notes / Abstract:</span>
+                        <p className="whitespace-pre-line">{submission.notes}</p>
+                      </div>
+                    )}
+
+                    {/* Score / Evaluation if available */}
+                    {isEvaluated && (
+                      <div className="mt-4 p-4 rounded-xl bg-purple-950/40 border border-purple-500/40 text-xs text-purple-200 flex items-center justify-between gap-3">
+                        <div>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400 block">Jury Evaluation Result:</span>
+                          <div className="text-lg font-black text-white mt-0.5">
+                            {submission?.score} / {task.points} PTS
+                          </div>
+                          {submission?.feedback && (
+                            <p className="mt-1 text-slate-300 italic">&ldquo;{submission.feedback}&rdquo;</p>
+                          )}
+                        </div>
+                        <Award className="w-8 h-8 text-purple-400 shrink-0" />
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setEditingMode(true)}
-                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-xs font-bold transition-all cursor-pointer"
-                >
-                  <Edit3 className="w-3.5 h-3.5" />
-                  <span>Update Submission Link</span>
-                </button>
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setEditingMode(true)}
+                      className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 text-xs font-bold transition-all cursor-pointer"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                      <span>Update Submission Links</span>
+                    </button>
 
-                <Link
-                  href="/"
-                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition-all shadow-md shadow-cyan-600/20"
-                >
-                  <span>Explore Other Tasks &rarr;</span>
-                </Link>
-              </div>
+                    <Link
+                      href="/"
+                      className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition-all shadow-md shadow-cyan-600/20"
+                    >
+                      <span>Explore Other Tasks &rarr;</span>
+                    </Link>
+                  </div>
+
+                </div>
+              ) : (
+                /* Admin-Gated Submission Input Form */
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 mb-2">
+                        <Send className="w-3.5 h-3.5 text-cyan-400" />
+                        <span>Admin-Configured Submission Interface</span>
+                      </div>
+                      <h3 className="text-xl sm:text-2xl font-black text-white">
+                        Submit Deliverable for Task #{task.id}
+                      </h3>
+                      <p className="text-xs text-slate-400 mt-1">
+                        Only the submission fields approved by the competition jury for this challenge are displayed below.
+                      </p>
+                    </div>
+
+                    {editingMode && (
+                      <button
+                        type="button"
+                        onClick={() => setEditingMode(false)}
+                        className="text-xs text-slate-400 hover:text-white"
+                      >
+                        Cancel Edit
+                      </button>
+                    )}
+                  </div>
+
+                  {errorMsg && (
+                    <div className="p-3.5 rounded-xl bg-red-950/70 border border-red-500/40 text-red-300 text-xs flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <span>{errorMsg}</span>
+                    </div>
+                  )}
+
+                  {successMsg && (
+                    <div className="p-3.5 rounded-xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 text-xs flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 shrink-0" />
+                      <span>{successMsg}</span>
+                    </div>
+                  )}
+
+                  {/* ADMIN-GATED INPUT FIELDS */}
+                  <div className="space-y-5">
+                    
+                    {/* 1. GITHUB MONOREPO INPUT (Rendered only if enabled) */}
+                    {isGithubAllowed && (
+                      <div className="p-4 rounded-2xl bg-slate-950/90 border border-purple-500/40 focus-within:border-purple-400 transition-all space-y-3">
+                        <label className="flex items-center gap-2 text-xs font-bold text-white">
+                          <Github className="w-4 h-4 text-purple-400" />
+                          <span>GitHub Repository URL</span>
+                          <span className="text-[10px] text-purple-300 font-normal font-mono">(Public repo link)</span>
+                        </label>
+                        <input
+                          type="url"
+                          value={githubUrl}
+                          onChange={(e) => setGithubUrl(e.target.value)}
+                          placeholder="https://github.com/your-username/asl-engineering-project"
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono text-xs placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-all"
+                        />
+                        <div className="w-full sm:w-1/2">
+                          <label className="block text-[11px] text-slate-400 mb-1">Target Branch / Release Tag</label>
+                          <input
+                            type="text"
+                            value={githubBranch}
+                            onChange={(e) => setGithubBranch(e.target.value)}
+                            placeholder="main"
+                            className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-white font-mono text-xs focus:outline-none focus:border-cyan-400"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 2. YOUTUBE VIDEO LINK (Rendered only if enabled) */}
+                    {isVideoAllowed && (
+                      <div className="p-4 rounded-2xl bg-slate-950/90 border border-blue-500/40 focus-within:border-cyan-400 transition-all space-y-2">
+                        <label className="flex items-center gap-2 text-xs font-bold text-white">
+                          <Video className="w-4 h-4 text-cyan-400" />
+                          <span>YouTube Video Link</span>
+                          <span className="text-[10px] text-cyan-400 font-normal font-mono">(Video demonstration)</span>
+                        </label>
+                        <input
+                          type="url"
+                          value={videoUrl}
+                          onChange={(e) => setVideoUrl(e.target.value)}
+                          placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                        />
+                      </div>
+                    )}
+
+                    {/* 3. GOOGLE DRIVE DOCUMENT LINK (Rendered only if enabled) */}
+                    {isDocumentAllowed && (
+                      <div className="p-4 rounded-2xl bg-slate-950/90 border border-amber-500/40 focus-within:border-amber-400 transition-all space-y-2">
+                        <label className="flex items-center gap-2 text-xs font-bold text-white">
+                          <FileText className="w-4 h-4 text-amber-400" />
+                          <span>Google Drive Document Link</span>
+                          <span className="text-[10px] text-amber-300 font-normal font-mono">(Google Docs, Slides, or PDF)</span>
+                        </label>
+                        <input
+                          type="url"
+                          value={documentUrl}
+                          onChange={(e) => setDocumentUrl(e.target.value)}
+                          placeholder="https://docs.google.com/presentation/d/... or Google Drive URL"
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                        />
+                      </div>
+                    )}
+
+                    {/* 4. DIRECT IMAGE UPLOADS (Rendered only if enabled) */}
+                    {isImageAllowed && (
+                      <div className="p-4 rounded-2xl bg-slate-950/90 border border-emerald-500/40 focus-within:border-emerald-400 transition-all space-y-3">
+                        <label className="flex items-center gap-2 text-xs font-bold text-white">
+                          <ImageIcon className="w-4 h-4 text-emerald-400" />
+                          <span>Direct Image Upload</span>
+                          <span className="text-[10px] text-emerald-300 font-normal font-mono">(CAD renders, schematics, or photos)</span>
+                        </label>
+
+                        <div className="relative border-2 border-dashed border-slate-700 hover:border-emerald-400/50 rounded-xl p-4 text-center transition-all bg-slate-900/40">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            disabled={uploadingImage}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                          />
+                          <UploadCloud className="w-6 h-6 text-slate-400 mx-auto mb-1" />
+                          <span className="text-xs font-semibold text-slate-200 block">
+                            {uploadingImage ? 'Uploading image to storage...' : 'Click or drop image deliverable here'}
+                          </span>
+                          <span className="text-[10px] text-slate-500">PNG, JPG, WebP up to 15MB</span>
+                        </div>
+
+                        {imageUrl && (
+                          <div className="flex items-center justify-between p-2 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+                            <span className="text-emerald-400 truncate max-w-md font-mono">{imageUrl}</span>
+                            <button
+                              type="button"
+                              onClick={() => setImageUrl('')}
+                              className="text-red-400 hover:text-red-300 text-xs font-bold px-2 py-1"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Submission Notes & Remarks */}
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-300 mb-1">
+                        Submission Abstract & Technical Notes (Optional)
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        placeholder="Briefly describe your solution, architecture highlights, or instructions for the jury..."
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-400"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Submit CTA Button */}
+                  <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                    <span className="text-[11px] text-slate-400">
+                      Submissions are instantly evaluated against competition rubrics.
+                    </span>
+
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-linear-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-extrabold shadow-xl shadow-cyan-600/30 transition-all cursor-pointer disabled:opacity-50"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      <span>{submitting ? 'Submitting...' : 'Submit Deliverables & Validate'}</span>
+                    </button>
+                  </div>
+
+                </form>
+              )}
 
             </div>
-          ) : (
-            /* Submission Input Form */
-            <form onSubmit={handleSubmit} className="space-y-6">
-              
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 mb-2">
-                    <Send className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>Designated Deliverable Submission Hub</span>
-                  </div>
-                  <h3 className="text-xl sm:text-2xl font-black text-white">
-                    Submit Deliverable for Task #{task.id}
-                  </h3>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Provide your official GitHub repository monorepo link. Submissions are instantly validated and saved in the database.
-                  </p>
-                </div>
-
-                {editingMode && (
-                  <button
-                    type="button"
-                    onClick={() => setEditingMode(false)}
-                    className="text-xs text-slate-400 hover:text-white"
-                  >
-                    Cancel Edit
-                  </button>
-                )}
-              </div>
-
-              {errorMsg && (
-                <div className="p-3.5 rounded-xl bg-red-950/70 border border-red-500/40 text-red-300 text-xs flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{errorMsg}</span>
-                </div>
-              )}
-
-              {successMsg && (
-                <div className="p-3.5 rounded-xl bg-emerald-950/70 border border-emerald-500/40 text-emerald-300 text-xs flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>{successMsg}</span>
-                </div>
-              )}
-
-              {/* Highlighted GitHub URL Input Area */}
-              <div className="space-y-4">
-                <div className="p-4 rounded-2xl bg-slate-950/90 border border-cyan-500/40 focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-500/20 transition-all">
-                  <label className="flex items-center gap-2 text-xs font-bold text-white mb-1.5">
-                    <Github className="w-4 h-4 text-purple-400" />
-                    <span>GitHub Repository URL *</span>
-                    <span className="text-[10px] text-cyan-400 font-normal">(Primary technical deliverable)</span>
-                  </label>
-                  <input
-                    type="url"
-                    required
-                    value={githubUrl}
-                    onChange={(e) => setGithubUrl(e.target.value)}
-                    placeholder="https://github.com/your-username/asl-engineering-project"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono text-xs placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-all"
-                  />
-                  <span className="text-[10px] text-slate-400 mt-1.5 block">
-                    Must be a valid GitHub repo link containing your modular source code, CAD exports, or markdown documentation.
-                  </span>
-                </div>
-
-                {/* Additional optional inputs */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">
-                      Git Branch / Release Tag
-                    </label>
-                    <input
-                      type="text"
-                      value={githubBranch}
-                      onChange={(e) => setGithubBranch(e.target.value)}
-                      placeholder="main"
-                      className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white font-mono text-xs focus:outline-none focus:border-cyan-400"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">
-                      Live Video Demo URL (Optional)
-                    </label>
-                    <input
-                      type="url"
-                      value={videoUrl}
-                      onChange={(e) => setVideoUrl(e.target.value)}
-                      placeholder="https://youtu.be/... or Loom link"
-                      className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-400"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Presentation Deck URL / Cloud Drive (Optional)
-                  </label>
-                  <input
-                    type="url"
-                    value={pptxUrl}
-                    onChange={(e) => setPptxUrl(e.target.value)}
-                    placeholder="https://drive.google.com/... or Slide deck link"
-                    className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Submission Abstract & Engineering Notes (Optional)
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Briefly describe your implementation, architecture highlights, testing logs, or instructions for the jury..."
-                    className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-              </div>
-
-              {/* Submit CTA Button */}
-              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-                <span className="text-[11px] text-slate-400">
-                  Submissions are instantly evaluated against competition rubrics.
-                </span>
-
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-linear-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-extrabold shadow-xl shadow-cyan-600/30 transition-all cursor-pointer disabled:opacity-50"
-                >
-                  <Send className="w-4 h-4" />
-                  <span>{submitting ? 'Validating & Saving...' : 'Submit Deliverable & Complete Task'}</span>
-                </button>
-              </div>
-
-            </form>
-          )}
-
-        </div>
           </>
         )}
-
       </main>
 
-      {/* Auth Modal if needed */}
+      {/* Auth Modal */}
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
-        onAuthSuccess={(profile) => {
-          setUserProfile(profile);
-          refreshSubmission(profile.id);
+        onAuthSuccess={(prof) => {
+          setUserProfile(prof);
+          refreshSubmission(prof.id);
         }}
       />
 
@@ -700,11 +803,8 @@ export default function TaskDetailPage() {
   return (
     <React.Suspense
       fallback={
-        <div className="min-h-screen bg-[#060913] text-white flex items-center justify-center p-6">
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-10 h-10 border-3 border-cyan-500 border-t-transparent rounded-full animate-spin" />
-            <p className="text-xs text-slate-400 font-mono tracking-wider uppercase">Loading Technical Challenge...</p>
-          </div>
+        <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
         </div>
       }
     >

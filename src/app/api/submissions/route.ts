@@ -10,6 +10,8 @@ export async function POST(request: Request) {
       github_url,
       github_branch,
       video_url,
+      document_url,
+      image_url,
       pptx_url,
       notes,
       team_name,
@@ -24,6 +26,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'User ID is required. Please sign in to submit.' }, { status: 401 });
     }
 
+    // Verify task exists and check allowed formats
+    const { data: task, error: taskErr } = await supabaseAdmin
+      .from('tasks')
+      .select('id, title, points, allowed_formats')
+      .eq('id', parseInt(task_id, 10))
+      .single();
+
+    if (taskErr || !task) {
+      return NextResponse.json({ error: 'Specified task does not exist in the database' }, { status: 404 });
+    }
+
+    const allowed = (task.allowed_formats || ['github']) as string[];
+
     // Validate GitHub repository link if provided
     if (github_url) {
       const trimmedGit = github_url.trim();
@@ -34,22 +49,29 @@ export async function POST(request: Request) {
           { status: 400 }
         );
       }
-    } else if (status === 'submitted') {
-      return NextResponse.json(
-        { error: 'GitHub repository URL is required for submission.' },
-        { status: 400 }
-      );
     }
 
-    // Verify task exists
-    const { data: task, error: taskErr } = await supabaseAdmin
-      .from('tasks')
-      .select('id, title, points')
-      .eq('id', parseInt(task_id, 10))
-      .single();
+    // Ensure at least one required enabled deliverable is provided
+    const doc = document_url || pptx_url;
+    const hasAnyDeliverable =
+      (allowed.includes('github') && Boolean(github_url?.trim())) ||
+      (allowed.includes('video') && Boolean(video_url?.trim())) ||
+      (allowed.includes('document') && Boolean(doc?.trim())) ||
+      (allowed.includes('pptx') && Boolean(doc?.trim())) ||
+      (allowed.includes('image') && Boolean(image_url?.trim()));
 
-    if (taskErr || !task) {
-      return NextResponse.json({ error: 'Specified task does not exist in the database' }, { status: 404 });
+    if (status === 'submitted' && !hasAnyDeliverable) {
+      const reqList = allowed.map((f: string) => {
+        if (f === 'github') return 'GitHub Repository';
+        if (f === 'video') return 'YouTube / Video Link';
+        if (f === 'document' || f === 'pptx') return 'Google Drive / Document Link';
+        if (f === 'image') return 'Direct Image Deliverable';
+        return f;
+      }).join(', ');
+      return NextResponse.json(
+        { error: `Please provide at least one required deliverable for this task (${reqList}).` },
+        { status: 400 }
+      );
     }
 
     // Fetch user profile for team/participant name
@@ -81,7 +103,9 @@ export async function POST(request: Request) {
       github_url: github_url ? github_url.trim() : null,
       github_branch: github_branch ? github_branch.trim() : 'main',
       video_url: video_url ? video_url.trim() : null,
-      pptx_url: pptx_url ? pptx_url.trim() : null,
+      document_url: doc ? doc.trim() : null,
+      pptx_url: doc ? doc.trim() : null,
+      image_url: image_url ? image_url.trim() : null,
       notes: notes ? notes.trim() : null,
       submitted_at: existingSub?.submitted_at || now,
       updated_at: now,

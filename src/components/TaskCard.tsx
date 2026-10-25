@@ -77,10 +77,15 @@ export default function TaskCard({ task, submission }: TaskCardProps) {
               <span>Video</span>
             </span>
           )}
-          {task.allowed_formats?.includes('pptx') && (
+          {(task.allowed_formats?.includes('document') || task.allowed_formats?.includes('pptx')) && (
             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
               <FileText className="w-2.5 h-2.5" />
-              <span>Slide Deck</span>
+              <span>Drive / Doc</span>
+            </span>
+          )}
+          {task.allowed_formats?.includes('image') && (
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+              <span>🖼 Image</span>
             </span>
           )}
           {task.youtube_url && (

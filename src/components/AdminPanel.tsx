@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { Task, Submission, UserProfile, Project, TaskResource, ResourceType } from '@/types';
+import { Task, Submission, UserProfile, Project, TaskResource, ResourceType, AllowedFormat } from '@/types';
 import {
   ShieldAlert,
   Layers,
@@ -42,12 +42,16 @@ interface AdminPanelProps {
   tasks: Task[];
   onTasksUpdated: () => void;
   currentUser: UserProfile | null;
+  masterDeadline?: string;
+  onDeadlineUpdated?: (newDeadline: string) => void;
 }
 
 export default function AdminPanel({
   tasks,
   onTasksUpdated,
   currentUser,
+  masterDeadline,
+  onDeadlineUpdated,
 }: AdminPanelProps) {
   const [activeTab, setActiveTab] = useState<'submissions' | 'tasks' | 'participants' | 'new-task' | 'projects'>('submissions');
   
@@ -58,6 +62,16 @@ export default function AdminPanel({
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+
+  // Master Competition Deadline management state
+  const [adminDeadline, setAdminDeadline] = useState(
+    masterDeadline ? new Date(masterDeadline).toISOString().slice(0, 16) : ''
+  );
+  const [savingDeadline, setSavingDeadline] = useState(false);
+
+  // Inline Point Management state
+  const [inlineScores, setInlineScores] = useState<Record<string, string>>({});
+  const [savingScoreId, setSavingScoreId] = useState<string | null>(null);
 
   // Submissions filters & grading modal
   const [searchSubmission, setSearchSubmission] = useState('');
@@ -122,7 +136,7 @@ export default function AdminPanel({
     'Technical Architecture & Documentation',
     'Demonstration Video Link'
   ]);
-  const [taskFormats, setTaskFormats] = useState<('pptx' | 'video' | 'github' | 'document')[]>(['github', 'video', 'pptx']);
+  const [taskFormats, setTaskFormats] = useState<AllowedFormat[]>(['github', 'video', 'document', 'image']);
   
   // New Task attached resources builder
   const [taskResources, setTaskResources] = useState<TaskResource[]>([]);
@@ -142,7 +156,7 @@ export default function AdminPanel({
   const [editTaskYoutubeUrl, setEditTaskYoutubeUrl] = useState('');
   const [editTaskDeliverables, setEditTaskDeliverables] = useState<string[]>([]);
   const [editTaskDeliverableInput, setEditTaskDeliverableInput] = useState('');
-  const [editTaskFormats, setEditTaskFormats] = useState<('pptx' | 'video' | 'github' | 'document')[]>([]);
+  const [editTaskFormats, setEditTaskFormats] = useState<AllowedFormat[]>([]);
   const [editTaskResources, setEditTaskResources] = useState<TaskResource[]>([]);
   const [editResType, setEditResType] = useState<ResourceType>('pdf');
   const [editResTitle, setEditResTitle] = useState('');
@@ -345,6 +359,75 @@ export default function AdminPanel({
       setMessage({ text: err instanceof Error ? err.message : 'Evaluation error', type: 'error' });
     } finally {
       setSavingEvaluation(false);
+    }
+  };
+
+  // Sync admin deadline input whenever masterDeadline prop changes
+  useEffect(() => {
+    if (masterDeadline) {
+      try {
+        setAdminDeadline(new Date(masterDeadline).toISOString().slice(0, 16));
+      } catch {
+        // ignore invalid date
+      }
+    }
+  }, [masterDeadline]);
+
+  // Handle save Master Competition Deadline (Spec 5)
+  const handleSaveMasterDeadline = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!adminDeadline) return;
+    setSavingDeadline(true);
+    try {
+      const iso = new Date(adminDeadline).toISOString();
+      const res = await fetch('/api/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ master_deadline: iso }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to update master deadline');
+      if (onDeadlineUpdated) onDeadlineUpdated(iso);
+      setMessage({ text: 'Master competition deadline updated successfully! Countdown timer refreshed.', type: 'success' });
+    } catch (err) {
+      setMessage({ text: err instanceof Error ? err.message : 'Error updating deadline', type: 'error' });
+    } finally {
+      setSavingDeadline(false);
+    }
+  };
+
+  // Handle inline quick score update (Spec 3)
+  const handleQuickSaveScore = async (subId: string, currentScoreVal?: number | null) => {
+    const rawVal = inlineScores[subId] !== undefined ? inlineScores[subId] : (currentScoreVal !== null && currentScoreVal !== undefined ? String(currentScoreVal) : '');
+    const num = parseFloat(rawVal);
+    if (isNaN(num) || num < 0 || num > 100) {
+      setMessage({ text: 'Please enter a valid evaluation score between 0 and 100 points.', type: 'error' });
+      return;
+    }
+    setSavingScoreId(subId);
+    try {
+      const res = await fetch('/api/admin/submissions', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: subId,
+          score: num,
+          status: 'evaluated',
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to update score');
+
+      // Instantly update local submissions array
+      setSubmissions((prev) =>
+        prev.map((s) => (s.id === subId ? { ...s, score: num, status: 'evaluated' } : s))
+      );
+      setMessage({ text: `Evaluation score of ${num}/100 saved! Leaderboard recalculated.`, type: 'success' });
+      fetchAllData();
+    } catch (err) {
+      setMessage({ text: err instanceof Error ? err.message : 'Error saving score', type: 'error' });
+    } finally {
+      setSavingScoreId(null);
     }
   };
 
@@ -899,6 +982,50 @@ export default function AdminPanel({
         </div>
       </div>
 
+      {/* Master Competition Deadline Control Deck (Spec 5) */}
+      <div className="p-4 sm:p-5 rounded-3xl bg-linear-to-r from-cyan-950/80 via-slate-900/90 to-indigo-950/80 border border-cyan-500/40 shadow-xl backdrop-blur-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="p-2 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+              <Clock className="w-4 h-4" />
+            </span>
+            <h3 className="text-sm font-bold text-white tracking-wide">
+              Master Competition Deadline Control
+            </h3>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+              Unified Global Timer
+            </span>
+          </div>
+          <p className="text-xs text-slate-400 max-w-xl">
+            Sets the single master deadline countdown in the platform header. Decommissions individual task deadlines and automatically restricts submissions when expired.
+          </p>
+        </div>
+
+        <form onSubmit={handleSaveMasterDeadline} className="flex items-center gap-2.5 w-full md:w-auto">
+          <div className="relative flex-1 md:w-64">
+            <input
+              type="datetime-local"
+              value={adminDeadline}
+              onChange={(e) => setAdminDeadline(e.target.value)}
+              className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-cyan-400 font-mono shadow-inner"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={savingDeadline}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-linear-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-bold shadow-lg shadow-cyan-500/20 transition-all disabled:opacity-50 shrink-0 cursor-pointer"
+          >
+            {savingDeadline ? (
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Check className="w-3.5 h-3.5" />
+            )}
+            <span>{savingDeadline ? 'Saving...' : 'Update Global Deadline'}</span>
+          </button>
+        </form>
+      </div>
+
       {/* Admin Navigation Subtabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
         <button
@@ -1133,6 +1260,34 @@ export default function AdminPanel({
                           </a>
                         )}
 
+                        {sub.document_url && (
+                          <a
+                            href={sub.document_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-950/50 hover:bg-blue-900/70 border border-blue-500/40 text-blue-200 hover:text-white text-xs font-semibold transition-all"
+                            title="Direct link to participant's document"
+                          >
+                            <FileText className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                            <span>Document Link</span>
+                            <ExternalLink className="w-3 h-3 text-blue-400" />
+                          </a>
+                        )}
+
+                        {sub.image_url && (
+                          <a
+                            href={sub.image_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-950/50 hover:bg-emerald-900/70 border border-emerald-500/40 text-emerald-200 hover:text-white text-xs font-semibold transition-all"
+                            title="Direct link to participant's schematic/image"
+                          >
+                            <ImageIcon className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                            <span>Image Proof</span>
+                            <ExternalLink className="w-3 h-3 text-emerald-400" />
+                          </a>
+                        )}
+
                         {sub.notes && (
                           <span className="text-slate-400 italic max-w-md truncate text-xs">
                             &quot;{sub.notes}&quot;
@@ -1148,14 +1303,43 @@ export default function AdminPanel({
                       )}
                     </div>
 
-                    {/* Action Button */}
-                    <div className="flex items-center gap-2 shrink-0">
+                    {/* Inline Point Management System (Spec 3) & Detailed Evaluation Modal */}
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-800">
+                      <div className="flex items-center gap-1.5 bg-slate-950/90 p-1.5 rounded-xl border border-slate-800">
+                        <span className="text-[10px] font-bold uppercase text-slate-400 pl-2">Score:</span>
+                        <input
+                          type="number"
+                          min={0}
+                          max={100}
+                          placeholder={sub.score !== null && sub.score !== undefined ? String(sub.score) : '0-100'}
+                          value={inlineScores[sub.id] !== undefined ? inlineScores[sub.id] : (sub.score !== null && sub.score !== undefined ? String(sub.score) : '')}
+                          onChange={(e) => setInlineScores({ ...inlineScores, [sub.id]: e.target.value })}
+                          className="w-16 px-2 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs font-mono font-bold text-cyan-300 text-center focus:outline-none focus:border-cyan-400"
+                        />
+                        <span className="text-[10px] font-mono text-slate-500 pr-1">/100</span>
+                        <button
+                          type="button"
+                          onClick={() => handleQuickSaveScore(sub.id, sub.score)}
+                          disabled={savingScoreId === sub.id}
+                          className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold text-xs flex items-center gap-1 transition-all shadow-sm cursor-pointer"
+                          title="Save score out of 100 points instantly & recalculate standings"
+                        >
+                          {savingScoreId === sub.id ? (
+                            <RefreshCw className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <Check className="w-3 h-3" />
+                          )}
+                          <span>Save</span>
+                        </button>
+                      </div>
+
                       <button
                         onClick={() => handleOpenGrading(sub)}
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
+                        className="flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold text-xs border border-slate-700 transition-all cursor-pointer"
+                        title="Open detailed rubric feedback modal"
                       >
-                        <Award className="w-4 h-4" />
-                        <span>{sub.score !== null ? 'Update Grade & Review' : 'Grade & Evaluate'}</span>
+                        <Award className="w-3.5 h-3.5 text-cyan-400" />
+                        <span>Rubric</span>
                       </button>
                     </div>
                   </div>
@@ -2046,27 +2230,55 @@ export default function AdminPanel({
               </div>
             </div>
 
-            {/* Allowed Formats */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">Allowed Submission Formats</label>
-              <div className="flex items-center gap-4 text-xs text-slate-300 flex-wrap">
-                {(['github', 'video', 'pptx', 'document'] as const).map((fmt) => (
-                  <label key={fmt} className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={taskFormats.includes(fmt)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setTaskFormats([...taskFormats, fmt]);
-                        } else {
-                          setTaskFormats(taskFormats.filter((f) => f !== fmt));
-                        }
-                      }}
-                      className="rounded bg-slate-950 border-slate-800 text-cyan-500 focus:ring-0"
-                    />
-                    <span className="capitalize">{fmt === 'pptx' ? 'Slide Deck (PPTX)' : fmt === 'github' ? 'GitHub Monorepo' : fmt}</span>
-                  </label>
-                ))}
+            {/* Allowed Submission Formats (Spec 4: Admin-Gated) */}
+            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <div>
+                <label className="block text-xs font-bold text-white mb-0.5">
+                  Admin-Gated Submission Formats
+                </label>
+                <p className="text-[11px] text-slate-400">
+                  Toggle the exact deliverables participants can submit. Only checked formats will be rendered in the participant submission interface.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-2">
+                {[
+                  { id: 'github', label: 'GitHub Monorepo URLs', desc: 'Code repository & branch', icon: Github, color: 'text-purple-400' },
+                  { id: 'video', label: 'YouTube Video Links', desc: 'Working demonstration video', icon: Video, color: 'text-rose-400' },
+                  { id: 'document', label: 'Google Drive Document Links', desc: 'Architecture & documentation PDF', icon: FileText, color: 'text-blue-400' },
+                  { id: 'image', label: 'Direct Image Uploads', desc: 'Schematics, diagrams & visual proof', icon: ImageIcon, color: 'text-emerald-400' },
+                ].map(({ id, label, desc, icon: Icon, color }) => {
+                  const isChecked = taskFormats.includes(id as AllowedFormat);
+                  return (
+                    <label
+                      key={id}
+                      className={`flex items-start gap-2.5 p-3 rounded-xl border transition-all cursor-pointer ${
+                        isChecked
+                          ? 'bg-cyan-950/40 border-cyan-500/50 shadow-sm'
+                          : 'bg-slate-900/50 border-slate-800 hover:border-slate-700'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setTaskFormats([...taskFormats, id as AllowedFormat]);
+                          } else {
+                            setTaskFormats(taskFormats.filter((f) => f !== id));
+                          }
+                        }}
+                        className="mt-0.5 rounded bg-slate-950 border-slate-700 text-cyan-500 focus:ring-0"
+                      />
+                      <div className="text-xs">
+                        <div className="flex items-center gap-1.5 font-bold text-white">
+                          <Icon className={`w-3.5 h-3.5 ${color}`} />
+                          <span>{label}</span>
+                        </div>
+                        <span className="text-[10px] text-slate-400 block mt-0.5">{desc}</span>
+                      </div>
+                    </label>
+                  );
+                })}
               </div>
             </div>
 
@@ -2308,6 +2520,36 @@ export default function AdminPanel({
                     <div className="flex items-center gap-2">
                       <FileText className="w-4 h-4 text-orange-400" />
                       <span>{selectedSubmission.pptx_file_name || 'Slide Deck Presentation'}</span>
+                    </div>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
+
+                {selectedSubmission.document_url && (
+                  <a
+                    href={selectedSubmission.document_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-blue-950/40 border border-blue-800/60 text-blue-200 hover:text-white"
+                  >
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-blue-400" />
+                      <span>Architecture Document: {selectedSubmission.document_url}</span>
+                    </div>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
+
+                {selectedSubmission.image_url && (
+                  <a
+                    href={selectedSubmission.image_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-800/60 text-emerald-200 hover:text-white"
+                  >
+                    <div className="flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4 text-emerald-400" />
+                      <span>Schematic / Diagram Image Proof</span>
                     </div>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
@@ -2597,27 +2839,55 @@ export default function AdminPanel({
                 </div>
               </div>
 
-              {/* Edit Allowed Formats */}
-              <div>
-                <label className="block text-slate-300 font-semibold mb-1">Allowed Formats</label>
-                <div className="flex items-center gap-3">
-                  {(['github', 'video', 'pptx', 'document'] as const).map((fmt) => (
-                    <label key={fmt} className="flex items-center gap-1.5 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={editTaskFormats.includes(fmt)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setEditTaskFormats([...editTaskFormats, fmt]);
-                          } else {
-                            setEditTaskFormats(editTaskFormats.filter((f) => f !== fmt));
-                          }
-                        }}
-                        className="rounded bg-slate-950 border-slate-800 text-cyan-500"
-                      />
-                      <span className="capitalize">{fmt}</span>
-                    </label>
-                  ))}
+              {/* Edit Allowed Submission Formats (Spec 4: Admin-Gated) */}
+              <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+                <div>
+                  <label className="block text-xs font-bold text-white mb-0.5">
+                    Admin-Gated Submission Formats
+                  </label>
+                  <p className="text-[11px] text-slate-400">
+                    Toggle enabled formats for this task. Unchecked formats will be hidden from the user submission form.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 pt-1">
+                  {[
+                    { id: 'github', label: 'GitHub Monorepo URLs', desc: 'Monorepo code & branch', icon: Github, color: 'text-purple-400' },
+                    { id: 'video', label: 'YouTube Video Links', desc: 'Demonstration video', icon: Video, color: 'text-rose-400' },
+                    { id: 'document', label: 'Google Drive Document Links', desc: 'Architecture & documentation', icon: FileText, color: 'text-blue-400' },
+                    { id: 'image', label: 'Direct Image Uploads', desc: 'Schematics & diagrams', icon: ImageIcon, color: 'text-emerald-400' },
+                  ].map(({ id, label, desc, icon: Icon, color }) => {
+                    const isChecked = editTaskFormats.includes(id as AllowedFormat);
+                    return (
+                      <label
+                        key={id}
+                        className={`flex items-start gap-2 p-2.5 rounded-xl border transition-all cursor-pointer ${
+                          isChecked
+                            ? 'bg-cyan-950/40 border-cyan-500/50 shadow-sm'
+                            : 'bg-slate-900/50 border-slate-800 hover:border-slate-700'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setEditTaskFormats([...editTaskFormats, id as AllowedFormat]);
+                            } else {
+                              setEditTaskFormats(editTaskFormats.filter((f) => f !== id));
+                            }
+                          }}
+                          className="mt-0.5 rounded bg-slate-950 border-slate-700 text-cyan-500 focus:ring-0"
+                        />
+                        <div className="text-xs">
+                          <div className="flex items-center gap-1 font-bold text-white">
+                            <Icon className={`w-3.5 h-3.5 ${color}`} />
+                            <span className="text-[11px]">{label}</span>
+                          </div>
+                          <span className="text-[10px] text-slate-400 block mt-0.5">{desc}</span>
+                        </div>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -2866,11 +3136,32 @@ export default function AdminPanel({
                           {/* Score and Grade Button */}
                           <div className="flex items-center gap-2 self-end sm:self-center">
                             {sub && (
-                              <div className="text-right">
-                                <span className="text-[10px] text-slate-400 uppercase font-semibold block">Score</span>
-                                <span className="text-xs font-bold font-mono text-white">
-                                  {sub.score !== null ? `${sub.score} / ${task.points}` : 'Ungraded'}
-                                </span>
+                              <div className="flex items-center gap-1.5 bg-slate-950 p-1.5 rounded-xl border border-slate-800">
+                                <span className="text-[10px] font-bold text-slate-400 pl-1.5">PTS:</span>
+                                <input
+                                  type="number"
+                                  min={0}
+                                  max={100}
+                                  placeholder={sub.score !== null ? String(sub.score) : '0-100'}
+                                  value={inlineScores[sub.id] !== undefined ? inlineScores[sub.id] : (sub.score !== null ? String(sub.score) : '')}
+                                  onChange={(e) => setInlineScores({ ...inlineScores, [sub.id]: e.target.value })}
+                                  className="w-14 px-1.5 py-1 rounded bg-slate-900 border border-slate-700 text-xs font-mono font-bold text-cyan-300 text-center focus:outline-none focus:border-cyan-400"
+                                />
+                                <span className="text-[10px] text-slate-500 font-mono">/100</span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleQuickSaveScore(sub.id, sub.score)}
+                                  disabled={savingScoreId === sub.id}
+                                  className="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold text-[11px] flex items-center gap-1 transition-all cursor-pointer"
+                                  title="Save score out of 100 points"
+                                >
+                                  {savingScoreId === sub.id ? (
+                                    <RefreshCw className="w-3 h-3 animate-spin" />
+                                  ) : (
+                                    <Check className="w-3 h-3" />
+                                  )}
+                                  <span>Save</span>
+                                </button>
                               </div>
                             )}
 
@@ -2923,6 +3214,32 @@ export default function AdminPanel({
                               >
                                 <Video className="w-3.5 h-3.5" />
                                 <span>Demo Video</span>
+                                <ExternalLink className="w-3 h-3 text-slate-400" />
+                              </a>
+                            )}
+
+                            {sub.document_url && (
+                              <a
+                                href={sub.document_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-blue-300 hover:text-white hover:border-blue-400 transition-colors"
+                              >
+                                <FileText className="w-3.5 h-3.5" />
+                                <span>Document</span>
+                                <ExternalLink className="w-3 h-3 text-slate-400" />
+                              </a>
+                            )}
+
+                            {sub.image_url && (
+                              <a
+                                href={sub.image_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-emerald-300 hover:text-white hover:border-emerald-400 transition-colors"
+                              >
+                                <ImageIcon className="w-3.5 h-3.5" />
+                                <span>Image Proof</span>
                                 <ExternalLink className="w-3 h-3 text-slate-400" />
                               </a>
                             )}

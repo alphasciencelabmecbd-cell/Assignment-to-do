@@ -33,6 +33,7 @@ export default function Home() {
   const [loadingTasks, setLoadingTasks] = useState(true);
   const [submissions, setSubmissions] = useState<Record<number, Submission>>({});
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [masterDeadline, setMasterDeadline] = useState<string>('2026-11-15T23:59:59.000Z');
   
   // Modals state
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -40,6 +41,19 @@ export default function Home() {
   // Filters state
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('uncompleted'); // default to uncompleted tasks for competitor focus
+
+  // Fetch master settings from database
+  const fetchSettings = useCallback(async () => {
+    try {
+      const res = await fetch('/api/settings');
+      const data = await res.json();
+      if (data.settings?.master_deadline) {
+        setMasterDeadline(data.settings.master_deadline);
+      }
+    } catch (err) {
+      console.warn('Dynamic settings fetch error:', err);
+    }
+  }, []);
 
   // Fetch dynamic tasks from database / API without predefined presets
   const fetchTasks = useCallback(async () => {
@@ -86,11 +100,11 @@ export default function Home() {
     }
   }, []);
 
-  // Load user session and dynamic tasks
+  // Load user session, dynamic tasks and master deadline
   useEffect(() => {
     async function initSession() {
       try {
-        await fetchTasks();
+        await Promise.all([fetchTasks(), fetchSettings()]);
 
         // Check active session
         const { data: { session } } = await supabase.auth.getSession();
@@ -213,6 +227,8 @@ export default function Home() {
         onOpenAuth={() => setAuthModalOpen(true)}
         onSignOut={handleSignOut}
         submissionCount={completedCount}
+        totalTasksCount={tasks.length}
+        masterDeadline={masterDeadline}
       />
 
       {/* Main Content Area */}
@@ -501,7 +517,7 @@ export default function Home() {
         {/* TAB 4: LEADERBOARD */}
         {activeTab === 'leaderboard' && (
           <div className="animate-fade-in">
-            <LeaderboardView />
+            <LeaderboardView totalTasksCount={tasks.length} />
           </div>
         )}
 
@@ -519,6 +535,8 @@ export default function Home() {
               tasks={tasks}
               onTasksUpdated={fetchTasks}
               currentUser={userProfile}
+              masterDeadline={masterDeadline}
+              onDeadlineUpdated={(newDeadline) => setMasterDeadline(newDeadline)}
             />
           </div>
         )}

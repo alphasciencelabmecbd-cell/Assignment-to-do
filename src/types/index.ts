@@ -11,7 +11,7 @@ export type TaskCategory =
   | 'Grand Finale'
   | string;
 
-export type AllowedFormat = 'video' | 'pptx' | 'github' | 'document';
+export type AllowedFormat = 'github' | 'video' | 'document' | 'image' | 'pptx';
 
 export type SubmissionStatus = 'draft' | 'submitted' | 'under_review' | 'evaluated';
 
@@ -31,7 +31,7 @@ export interface Task {
   category: TaskCategory;
   description: string;
   points: number;
-  deadline: string;
+  deadline?: string;
   allowed_formats: AllowedFormat[];
   deliverables: string[];
   youtube_url?: string | null;
@@ -72,6 +72,8 @@ export interface Submission {
   status: SubmissionStatus;
   video_url?: string | null;
   video_file_name?: string | null;
+  document_url?: string | null;
+  image_url?: string | null;
   pptx_url?: string | null;
   pptx_file_name?: string | null;
   pptx_file_size?: number | null;

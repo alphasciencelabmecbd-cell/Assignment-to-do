@@ -25,6 +25,8 @@ interface NavbarProps {
   onOpenAuth: () => void;
   onSignOut: () => void;
   submissionCount: number;
+  totalTasksCount: number;
+  masterDeadline?: string;
 }
 
 export default function Navbar({
@@ -34,30 +36,53 @@ export default function Navbar({
   onOpenAuth,
   onSignOut,
   submissionCount,
+  totalTasksCount,
+  masterDeadline,
 }: NavbarProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number }>({
-    days: 14,
-    hours: 8,
-    minutes: 42,
-    seconds: 15,
+  // Master Competition Deadline real-time calculation
+  const [timeLeft, setTimeLeft] = useState<{
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
+    isExpired: boolean;
+  }>({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    isExpired: false,
   });
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-        if (prev.minutes > 0) return { ...prev, minutes: 59, seconds: 59 };
-        if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        if (prev.days > 0) return { ...prev, days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 };
-        return prev;
-      });
-    }, 1000);
+    function calculateTime() {
+      const targetTime = masterDeadline
+        ? new Date(masterDeadline).getTime()
+        : new Date('2026-11-15T23:59:59.000Z').getTime();
+      const now = Date.now();
+      const diff = targetTime - now;
+
+      if (diff <= 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isExpired: true });
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      setTimeLeft({ days, hours, minutes, seconds, isExpired: false });
+    }
+
+    calculateTime();
+    const timer = setInterval(calculateTime, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [masterDeadline]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -80,11 +105,23 @@ export default function Navbar({
     badge?: string;
   }
 
-  // Public items - Admin Hub is completely excluded for regular visitors
+  // Public items - completely dynamic tasks count from database
   const publicNavItems: NavItem[] = [
     { id: 'overview', label: 'Overview', description: 'Platform summary & competition timeline', icon: Sparkles },
-    { id: 'tasks', label: '10 Tasks', description: 'Technical milestones & deliverables', icon: Layers, badge: '10' },
-    { id: 'submissions', label: 'My Submissions', description: 'Uploaded presentations, videos & repos', icon: FileCheck, badge: submissionCount > 0 ? `${submissionCount}/10` : undefined },
+    {
+      id: 'tasks',
+      label: totalTasksCount > 0 ? `${totalTasksCount} Challenges` : 'Challenges',
+      description: 'Technical milestones & deliverables',
+      icon: Layers,
+      badge: String(totalTasksCount),
+    },
+    {
+      id: 'submissions',
+      label: 'My Submissions',
+      description: 'Uploaded presentations, videos & repos',
+      icon: FileCheck,
+      badge: totalTasksCount > 0 && submissionCount > 0 ? `${submissionCount}/${totalTasksCount}` : submissionCount > 0 ? String(submissionCount) : undefined,
+    },
     { id: 'leaderboard', label: 'Leaderboard', description: 'Live individual rankings & scores', icon: Trophy },
     { id: 'rules', label: 'Rubrics & Rules', description: 'Evaluation criteria & standards', icon: BookOpen },
   ];
@@ -220,23 +257,33 @@ export default function Navbar({
                   <div className="pt-2 px-2 pb-1 flex items-center justify-between text-[11px] text-slate-400">
                     <span className="flex items-center gap-1.5 text-[10px]">
                       <Clock className="w-3 h-3 text-cyan-400" />
-                      Deadline:
+                      Master Deadline:
                     </span>
-                    <span className="font-mono text-cyan-400 font-bold text-[10px]" suppressHydrationWarning>
-                      {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m
+                    <span className={`font-mono font-bold text-[10px] ${timeLeft.isExpired ? 'text-rose-400' : 'text-cyan-400'}`} suppressHydrationWarning>
+                      {timeLeft.isExpired ? 'Competition Closed' : `${timeLeft.days}d ${timeLeft.hours}h ${timeLeft.minutes}m`}
                     </span>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Countdown Badge on Navbar */}
+            {/* Master Countdown Badge on Navbar */}
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs">
-              <Clock className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-              <div className="flex items-center gap-1 font-mono text-[11px] text-slate-300" suppressHydrationWarning>
-                <span className="text-cyan-400 font-semibold">{timeLeft.days}d</span>:
-                <span>{String(timeLeft.hours).padStart(2, '0')}h</span>:
-                <span>{String(timeLeft.minutes).padStart(2, '0')}m</span>
+              <Clock className={`w-3.5 h-3.5 ${timeLeft.isExpired ? 'text-rose-400' : 'text-cyan-400 animate-pulse'}`} />
+              <div className="flex items-center gap-1 font-mono text-[11px]" suppressHydrationWarning>
+                {timeLeft.isExpired ? (
+                  <span className="text-rose-400 font-bold uppercase tracking-wider text-[10px]">Closed</span>
+                ) : (
+                  <>
+                    <span className="text-cyan-400 font-bold">{timeLeft.days}d</span>
+                    <span className="text-slate-500">:</span>
+                    <span className="text-slate-200">{String(timeLeft.hours).padStart(2, '0')}h</span>
+                    <span className="text-slate-500">:</span>
+                    <span className="text-slate-200">{String(timeLeft.minutes).padStart(2, '0')}m</span>
+                    <span className="text-slate-500">:</span>
+                    <span className="text-cyan-300 font-mono">{String(timeLeft.seconds).padStart(2, '0')}s</span>
+                  </>
+                )}
               </div>
             </div>
 
