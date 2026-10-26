@@ -28,7 +28,16 @@ import Github from '@/components/GithubIcon';
 
 export default function Home() {
   const router = useRouter();
-  const [currentTab, setCurrentTab] = useState<NavigationTab>('overview');
+  const [currentTab, setCurrentTab] = useState<NavigationTab>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab') as NavigationTab | null;
+      if (tabParam && ['overview', 'tasks', 'submissions', 'leaderboard', 'rules'].includes(tabParam)) {
+        return tabParam;
+      }
+    }
+    return 'overview';
+  });
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loadingTasks, setLoadingTasks] = useState(true);
   const [submissions, setSubmissions] = useState<Record<number, Submission>>({});
@@ -168,6 +177,19 @@ export default function Home() {
       subscription.unsubscribe();
     };
   }, [fetchTasks, loadSubmissions, fetchSettings]);
+
+  // Synchronize tab on popstate (browser back/forward navigation)
+  useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab') as NavigationTab | null;
+      if (tabParam && ['overview', 'tasks', 'submissions', 'leaderboard', 'rules'].includes(tabParam)) {
+        setCurrentTab(tabParam);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // Route protection derived during render: Non-admin users cannot stay on admin tab
   const activeTab: NavigationTab = currentTab === 'admin' && userProfile?.role !== 'admin' ? 'overview' : currentTab;
@@ -544,7 +566,13 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer 
+        onNavigateTab={(tab) => {
+          setCurrentTab(tab);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        onOpenAuth={() => setAuthModalOpen(true)}
+      />
 
       {/* Authentication Modal */}
       <AuthModal

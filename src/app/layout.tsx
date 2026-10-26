@@ -19,12 +19,46 @@ export const viewport: Viewport = {
   themeColor: "#060913",
 };
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://assignment-to-do-beryl.vercel.app';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Alpha Science Lab | Multi-Stage Competition Platform",
   description: "Official submission platform for Alpha Science Lab (ASL). Securely submit video demonstrations, presentation slide decks (PPTX), and GitHub monorepos across 10 engineering milestones.",
   icons: {
     icon: "/asl-logo.png",
-    apple: "/asl-logo.png",
+    apple: "/og-square.png",
+  },
+  openGraph: {
+    title: "Alpha Science Lab | Multi-Stage Competition Platform",
+    description: "Official submission platform for Alpha Science Lab (ASL). Securely submit video demonstrations, presentation slide decks (PPTX), and GitHub monorepos across 10 engineering milestones.",
+    url: siteUrl,
+    siteName: "Alpha Science Lab",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Alpha Science Lab Logo",
+        type: "image/png",
+      },
+      {
+        url: "/og-square.png",
+        width: 800,
+        height: 800,
+        alt: "Alpha Science Lab Logo (Square Thumbnail)",
+        type: "image/png",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Alpha Science Lab | Multi-Stage Competition Platform",
+    description: "Official submission platform for Alpha Science Lab (ASL). Securely submit video demonstrations, presentation slide decks (PPTX), and GitHub monorepos across 10 engineering milestones.",
+    images: ["/og-image.png"],
+    creator: "@AlphaScienceLab",
   },
 };
 
@@ -40,6 +74,15 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
     >
       <head>
+        {/* Open Graph / Social Media Preview Meta Tags */}
+        <meta property="og:image" content="/og-image.png" />
+        <meta property="og:image:secure_url" content="https://assignment-to-do-beryl.vercel.app/og-image.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Alpha Science Lab Logo" />
+        <meta property="og:image:type" content="image/png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="/og-image.png" />
         <script
           dangerouslySetInnerHTML={{
             __html: `

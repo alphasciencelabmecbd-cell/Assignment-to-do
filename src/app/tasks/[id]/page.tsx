@@ -8,6 +8,7 @@ import { Task, Submission, UserProfile, AllowedFormat } from '@/types';
 import TaskResourcePlayers from '@/components/TaskResourcePlayers';
 import AnimatedCheckmark from '@/components/AnimatedCheckmark';
 import AuthModal from '@/components/AuthModal';
+import Footer from '@/components/Footer';
 import Github from '@/components/GithubIcon';
 import confetti from 'canvas-confetti';
 import {
@@ -786,6 +787,10 @@ function TaskDetailContent() {
       </main>
 
       {/* Auth Modal */}
+      {/* Enterprise Footer */}
+      <Footer onOpenAuth={() => setAuthModalOpen(true)} />
+
+      {/* Authentication Modal */}
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
