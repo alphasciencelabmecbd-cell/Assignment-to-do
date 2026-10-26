@@ -186,8 +186,8 @@ export default function Navbar({
                   ALPHA SCIENCE LAB
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400 tracking-wide hidden md:block">
-                National Engineering & Innovation Arena
+              <p className="text-xs text-slate-400 tracking-normal truncate max-w-44 sm:max-w-none">
+                Creativity starts from belief
               </p>
             </div>
           </div>
